@@ -46,22 +46,6 @@
         }
       }
     },
-    "backEndTier": {
-      "value": {
-        "cosmosdb": {
-          "name": "backend",
-          "serviceName": "zdt",
-          "tags": {
-            "tier": "backend",
-            "serviceName": "zdt"
-          },
-          "locationName": "East US",
-          "defaultExperience": "DocumentDB",
-          "pairedLocation": "westus",
-          "pairedLocationName": "West US"
-        }
-      }
-    },
     "operations": {
       "value": {
         "appInsights":{
@@ -74,16 +58,6 @@
           "serviceName": "zdt",
           "tags": {
             "tier": "operations"
-          }
-        }
-      }
-    },
-    "network": {
-      "value": {
-        "trafficManager": {
-          "serviceName": "zdt",
-          "tags": {
-            "tier": "network"
           }
         }
       }
