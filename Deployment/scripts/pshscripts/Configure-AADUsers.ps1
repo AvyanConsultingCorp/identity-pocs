@@ -61,13 +61,12 @@ foreach ($user in $actors) {
             #Get the Compay AD Admin ObjectID
             $companyAdminObjectId = Get-AzureADDirectoryRole | Where-Object {$_."DisplayName" -eq "Company Administrator"} | Select-Object ObjectId
             Add-AzureADDirectoryRoleMember -ObjectId $companyAdminObjectId.ObjectId -RefObjectId $userObj.ObjectId
-            Import-Module AzureRM.Resources
-	    New-AzureRmRoleAssignment -SignInName $upn -RoleDefinitionName 'contributor'
+	        New-AzureRmRoleAssignment -SignInName $upn -RoleDefinitionName 'contributor'
 
 
             #Make the new user the company admin aka Global AD administrator
             
-            Write-Host "`nSuccessfully granted Global AD permissions to $upn" -ForegroundColor Yellow
+            Write-Host "`nSuccessfully granted AD permissions to $upn" -ForegroundColor Yellow
             }
         }
         catch {

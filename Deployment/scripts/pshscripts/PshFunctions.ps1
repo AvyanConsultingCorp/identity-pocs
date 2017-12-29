@@ -388,7 +388,7 @@ function Get-DeploymentData($hash) {
     $parametersData.parameters.environmentReference.value.env = $env
     $parametersData.parameters.environmentReference.value.prefix = $resourceGroupPrefix
     $parametersData.parameters.environmentReference.value._artifactsLocation = 'https://{0}.blob.core.windows.net/' -f $hash
-    $parametersData.parameters.environmentReference.value.adAppClientId = $healthCareAdApplicationClientId
+    $parametersData.parameters.environmentReference.value.adAppClientId = $identityAdApplicationClientId
     $parametersData.parameters.environmentReference.value.deploymentPassword = $deploymentPassword
     $parametersData.parameters.environmentReference.value.tenantId = $tenantId
     $parametersData.parameters.environmentReference.value.tenantDomain = $tenantDomain

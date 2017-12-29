@@ -91,7 +91,11 @@ param
     [Alias("env")]
     [ValidateSet("prod","dev")] 
     [string]$environment = 'dev',
-
+ 
+    #Switch to install required modules.
+    [Parameter(Mandatory = $true,
+    ParameterSetName = "InstallModules")]
+    [switch]$installModules,
     #Switch to cleanup deployment resources from the subscription.
     [Parameter(Mandatory = $true, 
     ParameterSetName = "CleanUp", 
@@ -112,6 +116,7 @@ $WarningPreference = 'SilentlyContinue'
 Set-StrictMode -Version 3
 $scriptRoot = Split-Path $MyInvocation.MyCommand.Path
 
+. $scriptroot\scripts\pshscripts\PshFunctions.ps1
 ### Create Output  folder to storeWrite-Hosts, deploymentoutputs etc.
 if(! (Test-Path -Path "$(Split-Path $MyInvocation.MyCommand.Path)\output")) {
     New-Item -Path $(Split-Path $MyInvocation.MyCommand.Path) -Name 'output' -ItemType Directory
@@ -142,10 +147,7 @@ $deploymentprefix = $deploymentprefix.ToLower()
 
 Write-Host "Unload existing loaded modules, if any.."
 $modules = $requiredModules.Keys
-foreach ($module in $modules){
-    Remove-Module -Name $module -ErrorAction SilentlyContinue
-}
-Start-Sleep 5
+
 
 Write-Host "Trying to import required module in the session."
 try {
@@ -217,14 +219,14 @@ else {
     try
     {
        Write-Host "Initiating separate powershell session for creating accounts."
-        Start-Process Powershell -ArgumentList "-NoExit", "-WindowStyle Minimized", "-ExecutionPolicy UnRestricted", "$scriptroot\scripts\pshscripts\Configure-AADUsers.ps1 -tenantId $tenantId -subscriptionId $subscriptionId -tenantDomain $tenantDomain -globalAdminUsername $globalAdminUsername -globalAdminPassword $plainGlobalAdminPassword -deploymentPassword '$deploymentPassword'"
+       Configure-AADUsers -tenantId $tenantId -subscriptionId $subscriptionId -tenantDomain $tenantDomain -globalAdminUsername $globalAdminUsername -globalAdminPassword $plainGlobalAdminPassword -deploymentPassword $deploymentPassword
     }
     catch [System.Exception]
     {
         Break
     }
 
-   Write-Host "Wait for AAD Users to be provisioned."
+    Write-Host "Wait for AAD Users to be provisioned."
     Start-Sleep 60
 
     ### Create Resource Group for deployment and assigning RBAC to users.
@@ -257,7 +259,7 @@ else {
     ########### Create Azure Active Directory apps in default directory ###########
     try {
         # Create Active Directory Application
-        $AppServiceURL = (("http://",$deploymentPrefix,"identity.azurewebsites.net") -join '' )
+        $AppServiceURL = (("http://",$deploymentPrefix,"-identity.azurewebsites.net") -join '' )
         $displayName = "$deploymentPrefix Identity Web Application"
 
         if (!($identityAADApplication = Get-AzureRmADApplication -IdentifierUri $AppServiceURL)) {
@@ -281,8 +283,6 @@ else {
     }
       ### Invoke ARM deployment.
       Write-Host "Intiating Identity Deployment."
-
-      Write-Host "Invoke Workload deployment."
     Invoke-ARMDeployment -subscriptionId $subscriptionId -resourceGroupPrefix $deploymentPrefix -location $location -env $environment -steps 2
 
     # Pause Session for Background Job to Initiate.
