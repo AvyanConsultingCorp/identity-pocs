@@ -124,7 +124,7 @@ if(! (Test-Path -Path "$(Split-Path $MyInvocation.MyCommand.Path)\output")) {
 $outputFolderPath = "$(Split-Path $MyInvocation.MyCommand.Path)\output"
 ### Install required powershell modules
 $requiredModules=@{
-    'AzureRM' = '4.4.0';
+    'AzureRM'= '5.0.0'
     'AzureAD' = '2.0.0.131';
     'SqlServer' = '21.0.17199';
     'MSOnline' = '1.1.166.0'
@@ -166,7 +166,7 @@ catch {
 }
 
 ### Actors 
-$actors = @('Alex_SiteAdmin','Xander_WebUser')
+$actors = @('Reed_SiteAdmin','Xander_WebUser')
 
 ### Create PSCredential Object for GlobalAdmin Account
 $credential = New-Object System.Management.Automation.PSCredential ($globalAdminUsername, $globalAdminPassword)
@@ -213,13 +213,15 @@ else {
     $plainGlobalAdminPassword = [System.Runtime.InteropServices.Marshal]::PtrToStringAuto($BSTR)
 
     #import script
-    . $scriptroot\scripts\pshscripts\Configure-AADUsers.ps1
+    #. $scriptroot\scripts\pshscripts\Configure-AADUsers.ps1 -tenantId $tenantId -subscriptionId $subscriptionId -tenantDomain $tenantDomain -globalAdminUsername $globalAdminUsername -globalAdminPassword $securePassword -deploymentPassword $deploymentPassword
     ### Configure AAD User Accounts.
    Write-Host "Creating AAD account for solution actors using ServiceAdmin Account."
     try
     {
        Write-Host "Initiating separate powershell session for creating accounts."
-       Configure-AADUsers -tenantId $tenantId -subscriptionId $subscriptionId -tenantDomain $tenantDomain -globalAdminUsername $globalAdminUsername -globalAdminPassword $plainGlobalAdminPassword -deploymentPassword $deploymentPassword
+       #Configure-AADUsers.ps1 
+       .\scripts\pshscripts\Configure-AADUsers.ps1 -tenantId $tenantId -subscriptionId $subscriptionId -tenantDomain $tenantDomain -globalAdminUsername $globalAdminUsername -globalAdminPassword $securePassword -deploymentPassword $deploymentPassword
+
     }
     catch [System.Exception]
     {
