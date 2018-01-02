@@ -1,9 +1,9 @@
 ﻿{
   "Subscription": {
-    "Id": ""
+    "Id": "fb828b18-79dd-400c-919a-a393d88835e5"
   },
   "UserConfiguration": {
-    "Alex_SiteAdmin": [
+    "Alice": [
       {
         "Subscription": [
           {
@@ -16,17 +16,14 @@
         ]
       }
     ],
-    "Danny_DBAnalyst": [
+    "Reed_SiteAdmin": [
       {
         "ResourceGroup": [
           {
             "name": "hash-workload-env-rg",
             "role": [
               {
-                "name": "SQL DB Contributor"
-              },
-              {
-                "name": "SQL Server Contributor"
+                "name": "Contributor"
               }
             ]
           }
@@ -40,20 +37,7 @@
             "name": "hash-workload-env-rg",
             "role": [
               {
-                "name": "Storage Account Contributor"
-              }
-            ]
-          }
-        ]
-      }
-    ],
-    "Han_Auditor": [
-      {
-        "Subscription": [
-          {
-            "role": [
-              {
-                "name": "Reader"
+                "name": "Contributor"
               }
             ]
           }

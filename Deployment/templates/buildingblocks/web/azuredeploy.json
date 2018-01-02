@@ -12,20 +12,11 @@
       "defaultValue": "qwerty",
       "type": "string"
     },
-    "functions": {
-      "type": "secureObject"
-    },
     "packageVersion": {
       "type": "string"
     },
     "webApp": {
       "type": "secureObject"
-    },
-    "cosmosDbName": {
-      "type": "string"
-    },
-    "cosmosDbKey": {
-      "type": "securestring"
     },
     "location": {
       "type": "string"
@@ -40,8 +31,6 @@
   "variables": {
     "appInsightName": "[toLower(concat(parameters('uniquePrefix'),'-',parameters('appInsightsServiceName'),'-appinsights'))]",
     "appInsightsResourceGroup": "[toLower(concat(parameters('uniquePrefix'),'-operations-rg'))]",
-    "functionAppStorageAccName": "[concat(replace(toLower(concat(parameters('uniquePrefix'),'-fapp')),'-',''),'stg')]",
-    "functionAppName": "[toLower(concat(parameters('uniquePrefix'),'-fapp-',parameters('packageVersion')))]"
   },
   "resources": [
     {

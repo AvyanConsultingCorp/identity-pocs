@@ -22,13 +22,12 @@
     }
   },
   "variables": {
-    "cosmosDbName": "[toLower(concat(parameters('environmentReference').prefix,'-',parameters('backEndTier').cosmosdb.serviceName,'-cmdb'))]",
-    "cosomsDbResourceGroup": "[toLower(concat(parameters('environmentReference').prefix,'-backend-rg'))]"
+
 },
   "resources": [
     { 
       "apiVersion": "2017-05-10", 
-      "name": "deploy-functionapp", 
+      "name": "deploy-webapp", 
       "type": "Microsoft.Resources/deployments",
       "dependsOn": [
         "deploy-cosmosdb"

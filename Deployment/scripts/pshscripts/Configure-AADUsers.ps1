@@ -46,7 +46,7 @@ $passwordProfile.Password = $deploymentPassword
 $passwordProfile.ForceChangePasswordNextLogin = $false
 
 ### Create AAD Users
-$actors = @('Alex_SiteAdmin','Xander_WebUser')
+$actors = @('Mike','Sean_SiteAdmin','Tim_WebUser')
 foreach ($user in $actors) {
     $upn = $user + '@' + $tenantDomain
     Write-Host -ForegroundColor Yellow "`nChecking if $upn exists in AAD."
@@ -54,19 +54,30 @@ foreach ($user in $actors) {
     {
         Write-Host -ForegroundColor Yellow  "`n$upn does not exist in the directory. Creating account for $upn."
         try {
+			foreach($user in $actors)
+			{		
             $userObj = New-AzureADUser -DisplayName $user -PasswordProfile $passwordProfile `
             -UserPrincipalName $upn -AccountEnabled $true -MailNickName $user
             Write-Host -ForegroundColor Yellow "`n$upn created successfully."
             if ($upn -eq ($user+'@'+$tenantDomain)) {
             #Get the Compay AD Admin ObjectID
             $companyAdminObjectId = Get-AzureADDirectoryRole | Where-Object {$_."DisplayName" -eq "Company Administrator"} | Select-Object ObjectId
-            Add-AzureADDirectoryRoleMember -ObjectId $companyAdminObjectId.ObjectId -RefObjectId $userObj.ObjectId
-	        New-AzureRmRoleAssignment -SignInName $upn -RoleDefinitionName 'contributor'
+            Add-AzureADDirectoryRoleMember -ObjectId $companyAdminObjectId.ObjectId -RefObjectId $userObj.ObjectId			
+				if($user -eq 'Mike')
+				{
+					New-AzureRmRoleAssignment -SignInName $upn -RoleDefinitionName 'Owner'
+				}
+				else{
+
+					New-AzureRmRoleAssignment -SignInName $upn -RoleDefinitionName 'contributor'
+					}
 
 
             #Make the new user the company admin aka Global AD administrator
             
             Write-Host "`nSuccessfully granted AD permissions to $upn" -ForegroundColor Yellow
+					
+				}
             }
         }
         catch {

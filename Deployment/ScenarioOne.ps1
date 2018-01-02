@@ -124,7 +124,7 @@ if(! (Test-Path -Path "$(Split-Path $MyInvocation.MyCommand.Path)\output")) {
 $outputFolderPath = "$(Split-Path $MyInvocation.MyCommand.Path)\output"
 ### Install required powershell modules
 $requiredModules=@{
-    'AzureRM'= '5.0.0'
+    'AzureRM'= '4.4.0'
     'AzureAD' = '2.0.0.131';
     'SqlServer' = '21.0.17199';
     'MSOnline' = '1.1.166.0'
@@ -143,7 +143,7 @@ Clear-AzureRmContext -Scope CurrentUser -Force
 ### Converting deployment prefix to lowercase
 $deploymentprefix = $deploymentprefix.ToLower()
 
-# Import modules to the session.
+<# Import modules to the session.
 
 Write-Host "Unload existing loaded modules, if any.."
 $modules = $requiredModules.Keys
@@ -160,11 +160,10 @@ try {
     }
 }
 catch {
-    logerror
     Write-Host "Please re-run deploy.ps1 with installModules switch." -ForegroundColor Cyan
     Break
 }
-
+#>
 ### Actors 
 $actors = @('Reed_SiteAdmin','Xander_WebUser')
 
@@ -215,7 +214,7 @@ else {
     #import script
     #. $scriptroot\scripts\pshscripts\Configure-AADUsers.ps1 -tenantId $tenantId -subscriptionId $subscriptionId -tenantDomain $tenantDomain -globalAdminUsername $globalAdminUsername -globalAdminPassword $securePassword -deploymentPassword $deploymentPassword
     ### Configure AAD User Accounts.
-   Write-Host "Creating AAD account for solution actors using ServiceAdmin Account."
+   Write-Host "Creating AAD account for solution."
     try
     {
        Write-Host "Initiating separate powershell session for creating accounts."
@@ -240,11 +239,11 @@ else {
     }
 
     ### Create PSCredential Object for SiteAdmin
-    $siteAdminUserName = "Alex_SiteAdmin@" + $tenantDomain
+    $siteAdminUserName = "Reed_SiteAdmin@" + $tenantDomain
     $siteAdmincredential = New-Object System.Management.Automation.PSCredential ($siteAdminUserName, $secureDeploymentPassword)
 
     ### Connect to AzureRM using SiteAdmin
-   Write-Host "Connecting to AzureRM Subscription $subscriptionId using Alex_SiteAdmin Account."
+   Write-Host "Connecting to AzureRM Subscription $subscriptionId using Reed_SiteAdmin Account."
     $siteAdminContext =Login-AzureRmAccount -SubscriptionId $subscriptionId -TenantId $tenantId -Credential $siteAdmincredential -ErrorAction SilentlyContinue
     
     if($siteAdminContext -ne $null){
@@ -258,10 +257,9 @@ else {
     }
     Start-Sleep 10
 
-    ########### Create Azure Active Directory apps in default directory ###########
+    # Create Azure Active Directory apps in default directory.
     try {
-        # Create Active Directory Application
-        $AppServiceURL = (("http://",$deploymentPrefix,"-identity.azurewebsites.net") -join '' )
+        $AppServiceURL = (("http://",$deploymentPrefix,"-identity-app.azurewebsites.net") -join '' )
         $displayName = "$deploymentPrefix Identity Web Application"
 
         if (!($identityAADApplication = Get-AzureRmADApplication -IdentifierUri $AppServiceURL)) {
@@ -269,13 +267,12 @@ else {
         $identityAADApplication = New-AzureRmADApplication -DisplayName $displayName -HomePage $AppServiceURL -IdentifierUris $AppServiceURL -Password $deploymentPassword
         $identityAdApplicationClientId = $identityAADApplication.ApplicationId.Guid
         $identityAdApplicationObjectId = $identityAADApplication.ObjectId.Guid.ToString()
-       Write-Host "AAD Application  was successful. AppID is $identityAdApplicationClientId"
         # Create a service principal for the AD Application and add a Reader role to the principal 
+       Write-Host "AAD Application  was successful. AppID is $identityAdApplicationClientId"
        Write-Host "Creating Service principal for deployment"
         $identityServicePrincipal = New-AzureRmADServicePrincipal -ApplicationId $identityAdApplicationClientId
         Start-Sleep -s 30 # Wait till the ServicePrincipal is completely created. Usually takes 20+secs. Needed as Role assignment needs a fully deployed servicePrincipal
        Write-Host "Service principal for deployment was successful - $($identityServicePrincipal.DisplayName)"
-       # $identityAdServicePrincipalObjectId = (Get-AzureRmADServicePrincipal | ?  DispLayName -eq "$deploymentPrefix Identity Web Application").Id.Guid
         }
     }
     catch {
