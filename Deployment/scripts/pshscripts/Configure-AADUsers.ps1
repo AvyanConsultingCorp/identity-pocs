@@ -38,6 +38,7 @@ $BSTR = [System.Runtime.InteropServices.Marshal]::SecureStringToBSTR($SecurePass
 $UnsecurePassword = [System.Runtime.InteropServices.Marshal]::PtrToStringAuto($BSTR)
 
 $credential = New-Object System.Management.Automation.PSCredential ($globalAdminUsername,$SecurePassword)
+Login-AzureRmAccount -Credential $credential
 
 ### Connect AzureAD
 Connect-AzureAD -Credential $credential -TenantId $tenantId
@@ -46,16 +47,14 @@ $passwordProfile.Password = $deploymentPassword
 $passwordProfile.ForceChangePasswordNextLogin = $false
 
 ### Create AAD Users
-$actors = @('Mike','Sean_SiteAdmin','Tim_WebUser')
+$actors = @('Reed_SiteAdmin','usertwo','userthree')
 foreach ($user in $actors) {
     $upn = $user + '@' + $tenantDomain
     Write-Host -ForegroundColor Yellow "`nChecking if $upn exists in AAD."
-    if (!(Get-AzureADUser -SearchString $upn))
+    if (!(Get-AzureADUser -SearchString $user ))
     {
         Write-Host -ForegroundColor Yellow  "`n$upn does not exist in the directory. Creating account for $upn."
         try {
-			foreach($user in $actors)
-			{		
             $userObj = New-AzureADUser -DisplayName $user -PasswordProfile $passwordProfile `
             -UserPrincipalName $upn -AccountEnabled $true -MailNickName $user
             Write-Host -ForegroundColor Yellow "`n$upn created successfully."
@@ -63,14 +62,15 @@ foreach ($user in $actors) {
             #Get the Compay AD Admin ObjectID
             $companyAdminObjectId = Get-AzureADDirectoryRole | Where-Object {$_."DisplayName" -eq "Company Administrator"} | Select-Object ObjectId
             Add-AzureADDirectoryRoleMember -ObjectId $companyAdminObjectId.ObjectId -RefObjectId $userObj.ObjectId			
-				if($user -eq 'Mike')
+				if($user -eq 'Reed_SiteAdmin')
 				{
-					New-AzureRmRoleAssignment -SignInName $upn -RoleDefinitionName 'Owner'
+                    New-AzureRmRoleAssignment -SignInName $upn -RoleDefinitionName 'Owner'			
 				}
-				else{
+				else
+				{
+                                New-AzureRmRoleAssignment -SignInName $upn -RoleDefinitionName 'Contributor'			
 
-					New-AzureRmRoleAssignment -SignInName $upn -RoleDefinitionName 'contributor'
-					}
+				}
 
 
             #Make the new user the company admin aka Global AD administrator
@@ -78,7 +78,6 @@ foreach ($user in $actors) {
             Write-Host "`nSuccessfully granted AD permissions to $upn" -ForegroundColor Yellow
 					
 				}
-            }
         }
         catch {
             throw $_

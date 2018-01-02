@@ -1,0 +1,9 @@
+2018-01-02 12:12:24 - The following error occurred while loading the extended type data file: Error in TypeData "Microsoft.Azure.Commands.Common.Authentication.Abstractions.IAzureContextContainer": The TypeConverter was ignored because it already occurs.
+Error in TypeData "Microsoft.Azure.Commands.Common.Authentication.Abstractions.IAzureContextContainer": The member SerializationDepth is already present.
+Error in TypeData "Microsoft.Azure.Commands.Common.Authentication.ProtectedFileTokenCache": The member PropertySerializationSet is already present.
+Error in TypeData "Microsoft.Azure.Commands.Common.Authentication.ProtectedFileTokenCache": The member SerializationMethod is already present.
+Error in TypeData "Microsoft.Azure.Commands.Common.Authentication.AuthenticationStoreTokenCache": The member PropertySerializationSet is already present.
+Error in TypeData "Microsoft.Azure.Commands.Common.Authentication.AuthenticationStoreTokenCache": The member SerializationMethod is already present.
+Error in TypeData "Microsoft.Azure.Commands.Profile.Models.PSAzureContext": The member SerializationDepth is already present.
+Error in TypeData "Microsoft.Azure.Commands.Profile.Models.PSAzureProfile": The member SerializationDepth is already present.
+

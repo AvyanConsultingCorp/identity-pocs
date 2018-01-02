@@ -243,7 +243,7 @@ else {
     $siteAdmincredential = New-Object System.Management.Automation.PSCredential ($siteAdminUserName, $secureDeploymentPassword)
 
     ### Connect to AzureRM using SiteAdmin
-   Write-Host "Connecting to AzureRM Subscription $subscriptionId using Reed_SiteAdmin Account."
+   Write-Host "Connecting to AzureRM Subscription $subscriptionId using Reed_SiteAdmin Account($siteAdminUserName)"
     $siteAdminContext =Login-AzureRmAccount -SubscriptionId $subscriptionId -TenantId $tenantId -Credential $siteAdmincredential -ErrorAction SilentlyContinue
     
     if($siteAdminContext -ne $null){
@@ -264,7 +264,7 @@ else {
 
         if (!($identityAADApplication = Get-AzureRmADApplication -IdentifierUri $AppServiceURL)) {
        Write-Host "Creating AAD Application deployment"
-        $identityAADApplication = New-AzureRmADApplication -DisplayName $displayName -HomePage $AppServiceURL -IdentifierUris $AppServiceURL -Password $deploymentPassword
+        $identityAADApplication = New-AzureRmADApplication -DisplayName $displayName -HomePage $AppServiceURL -IdentifierUris $AppServiceURL -Password $secureDeploymentPassword
         $identityAdApplicationClientId = $identityAADApplication.ApplicationId.Guid
         $identityAdApplicationObjectId = $identityAADApplication.ObjectId.Guid.ToString()
         # Create a service principal for the AD Application and add a Reader role to the principal 

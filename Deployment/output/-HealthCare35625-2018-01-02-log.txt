@@ -1,0 +1,8 @@
+2018-01-02 12:07:51 - Verifying module AzureAD.
+2018-01-02 12:07:54 - Module AzureAD with required version is already installed.
+2018-01-02 12:07:54 - Verifying module SqlServer.
+2018-01-02 12:07:57 - Module SqlServer with required version is already installed.
+2018-01-02 12:07:57 - Verifying module AzureRM.
+2018-01-02 12:08:00 - Other version of Module found. Installing required version of module.
+2018-01-02 12:12:02 - Verifying module MSOnline.
+2018-01-02 12:12:06 - Module MSOnline with required version is already installed.
