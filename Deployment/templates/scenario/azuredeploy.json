@@ -7,18 +7,7 @@
     },
     "frontEndTier": {
       "type": "secureObject"
-    },
-    "middleTier": {
-      "type": "secureObject"
-    },
-    "backEndTier": {
-      "type": "secureObject"
-    },
-    "operations": {
-      "type": "secureObject"
-    },
-    "network": {
-      "type": "secureObject"
+    }
     }
   },
   "variables": {
@@ -29,9 +18,6 @@
       "apiVersion": "2017-05-10", 
       "name": "deploy-webapp", 
       "type": "Microsoft.Resources/deployments",
-      "dependsOn": [
-        "deploy-cosmosdb"
-      ],
       "properties": { 
          "mode": "Incremental",
         "templateLink": {
@@ -42,10 +28,8 @@
           "_artifactsLocation": { "value": "[parameters('environmentReference')._artifactsLocation]" },
           "_artifactsSasToken": { "value": "[parameters('environmentReference')._artifactsLocationSasToken]" },
           "uniquePrefix": { "value": "[parameters('environmentReference').prefix]" },
-          "packageVersion": { "value": "[parameters('environmentReference').packageVersion]" },
           "webApp": { "value": "[parameters('frontEndTier').webApp]" },
           "location": { "value": "[parameters('environmentReference').location]" },
-          "appInsightsServiceName": { "value": "[parameters('operations').appInsights.serviceName]" },
           "tags": { "value": "[parameters('environmentReference').tags]" }
         }
       }
