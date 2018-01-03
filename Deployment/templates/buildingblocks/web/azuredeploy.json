@@ -67,7 +67,7 @@
             "value": "[parameters('location')]"
           },
           "DeployPackageURI": {
-            "value": "[concat(parameters('_artifactsLocation'),'/artifacts/',)]"
+            "value": "[concat(parameters('_artifactsLocation'),'/artifacts/test.zip')]"
           },
           "tags": {
             "value": "[union(parameters('tags'), parameters('webApp').tags)]"
