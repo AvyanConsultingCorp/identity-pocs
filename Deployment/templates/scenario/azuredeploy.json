@@ -8,8 +8,8 @@
     "frontEndTier": {
       "type": "secureObject"
     }
-    }
-  },
+    },
+  
   "variables": {
 
 },

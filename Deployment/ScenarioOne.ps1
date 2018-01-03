@@ -228,13 +228,13 @@ else {
     }
 
     Write-Host "Wait for AAD Users to be provisioned."
-    Start-Sleep 60
+    Start-Sleep 30
 
     ### Create Resource Group for deployment and assigning RBAC to users.
-    $components = @("workload", "monitoring")
+    $components = @("artifacts","workload")
     $components | ForEach-Object { 
         $rgName = (($deploymentPrefix,$_,$environment,'rg') -join '-')
-       Write-Host "Creating ResourceGroup $rgName at $location."
+        Write-Host "Creating ResourceGroup $rgName at $location."
         New-AzureRmResourceGroup -Name $rgName -Location $location -Force -OutVariable $_
     }
 
@@ -247,12 +247,12 @@ else {
     $siteAdminContext =Login-AzureRmAccount -SubscriptionId $subscriptionId -TenantId $tenantId -Credential $siteAdmincredential -ErrorAction SilentlyContinue
     
     if($siteAdminContext -ne $null){
-       Write-Host "Connection to AzureRM was successful using Alex_SiteAdmin Account." 
+       Write-Host "Connection to AzureRM was successful using Reed_SiteAdmin Account." 
     }
 
 
     Else{
-       Write-Host "Failed connecting to AzureRM using Alex_SiteAdmin Account." 
+       Write-Host "Failed connecting to AzureRM using Reed_SiteAdmin Account." 
         break
     }
     Start-Sleep 10
@@ -263,32 +263,39 @@ else {
         $displayName = "$deploymentPrefix Identity Web Application"
 
         if (!($identityAADApplication = Get-AzureRmADApplication -IdentifierUri $AppServiceURL)) {
-       Write-Host "Creating AAD Application deployment"
+        Write-Host "Creating AAD Application deployment"
         $identityAADApplication = New-AzureRmADApplication -DisplayName $displayName -HomePage $AppServiceURL -IdentifierUris $AppServiceURL -Password $secureDeploymentPassword
         $identityAdApplicationClientId = $identityAADApplication.ApplicationId.Guid
         $identityAdApplicationObjectId = $identityAADApplication.ObjectId.Guid.ToString()
         # Create a service principal for the AD Application and add a Reader role to the principal 
-       Write-Host "AAD Application  was successful. AppID is $identityAdApplicationClientId"
-       Write-Host "Creating Service principal for deployment"
+        Write-Host "AAD Application  was successful. AppID is $identityAdApplicationClientId"
+        Write-Host "Creating Service principal for deployment"
         $identityServicePrincipal = New-AzureRmADServicePrincipal -ApplicationId $identityAdApplicationClientId
         Start-Sleep -s 30 # Wait till the ServicePrincipal is completely created. Usually takes 20+secs. Needed as Role assignment needs a fully deployed servicePrincipal
-       Write-Host "Service principal for deployment was successful - $($identityServicePrincipal.DisplayName)"
+        Write-Host "Service principal for deployment was successful - $($identityServicePrincipal.DisplayName)"
         }
     }
     catch {
         
-       Write-Host $_.Exception.Message
+       Write- $_.Exception.MessageHost
         Break
     }
-      ### Invoke ARM deployment.
-      Write-Host "Intiating Identity Deployment."
-    Invoke-ARMDeployment -subscriptionId $subscriptionId -resourceGroupPrefix $deploymentPrefix -location $location -env $environment -steps 2
-
-    # Pause Session for Background Job to Initiate.
-    Write-Host "Pausing session for background job to initiate"
-    Start-Sleep 20
-
-    #Get deployment status
-    
-  
+    try {
+        Import-AzureRmContext -Path "$scriptRoot\auth.json" -ErrorAction Stop
+        Set-AzureRmContext -SubscriptionId $subscriptionId
+    }
+    catch {
+        Write- $_.Exception.MessageHost
+        exit 1337
+    }
+    $pathTemplate="$scriptroot\templates\scenarios\azuredeploy.json"
+    $pathParameters="$scriptroot\templates\azuredeploy.parameters.json"
+    $deploymentName=(($deploymentPrefix,'workload',$environment,'rg-deployment') -join '-')
+    $rgName = (($deploymentPrefix,'workload',$environment,'rg') -join '-')
+    New-AzureRmResourceGroupDeployment `
+        -ResourceGroupName $rgName `
+        -TemplateFile $pathTemplate `
+        -TemplateParameterFile $pathParameters `
+        -Name $deploymentName `
+        -ErrorAction Stop -Verbose
 }

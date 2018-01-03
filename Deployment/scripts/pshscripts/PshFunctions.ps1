@@ -109,7 +109,7 @@ function log {
         $logFolderPath = $outputFolderPath #Set the log path here.
         $logtime = Get-Date -Format 'yyyy-MM-dd HH:mm:ss'
         $logHash = $uniqueDeploymentHash
-        $Script:logFileName = (($deploymentPrefix,"Idenetity$logHash",(Get-Date -Format 'yyyy-MM-dd').ToString(),'log.txt') -join '-')
+        $Script:logFileName = (($deploymentPrefix,"Identity-$logHash",(Get-Date -Format 'yyyy-MM-dd').ToString(),'log.txt') -join '-')
         $filePath = $logFolderPath + '\' +$logFileName
         if (!(Test-Path -Path $filePath)){
             New-Item -Path $logFolderPath -Name $logFileName -ItemType File | Out-Null
@@ -334,7 +334,7 @@ function Invoke-ARMDeployment {
             $Script:newDeploymentName = (($deploymentData[0], ($deployments.$step).name) -join '-').ToString().Replace('\','-')
             $Script:newDeploymentResourceGroupName = (($resourceGroupPrefix,($deployments.$step).rg,$env,'rg' ) -join '-')
             Start-job -Name ("$step-create") -ScriptBlock $importSession -Debug `
-                -ArgumentList (($resourceGroupPrefix,($deployments.$step).rg,$env,'rg' ) -join '-'), "$scriptroot\templates\scenarios\$(($deployments.$step).name)\azuredeploy.json", $deploymentData[1], (($deploymentData[0], ($deployments.$step).name) -join '-').ToString().Replace('\','-'), $scriptRoot, $subscriptionId
+                -ArgumentList (($resourceGroupPrefix,($deployments.$step).rg,$env,'rg' ) -join '-'), "$scriptroot\templates\scenarios\azuredeploy.json", $deploymentData[1], (($deploymentData[0], ($deployments.$step).name) -join '-').ToString().Replace('\','-'), $scriptRoot, $subscriptionId
         }
     }
     catch {
@@ -347,9 +347,9 @@ function Invoke-ARMDeployment {
     This function publish required scripts and templates to artifacts storage account for deployment.
 #>
 function Publish-BuildingBlocksTemplates ($hash) {
-    $StorageAccount = Get-AzureRmStorageAccount -ResourceGroupName (($resourceGroupPrefix,'workload',$env,'rg') -join '-')  -Name $hash -ErrorAction SilentlyContinue
+    $StorageAccount = Get-AzureRmStorageAccount -ResourceGroupName (($resourceGroupPrefix,'artifacts',$env,'rg') -join '-')  -Name $hash -ErrorAction SilentlyContinue
     if (!$StorageAccount) {
-        $StorageAccount = New-AzureRmStorageAccount -ResourceGroupName (($resourceGroupPrefix,'workload',$env,'rg') -join '-') -Name $hash -Type Standard_LRS `
+        $StorageAccount = New-AzureRmStorageAccount -ResourceGroupName (($resourceGroupPrefix,'artifacts',$env,'rg') -join '-') -Name $hash -Type Standard_LRS `
             -Location $location -ErrorAction Stop
     }
     $ContainerList = (Get-AzureStorageContainer -Context $StorageAccount.Context | Select-Object -ExpandProperty Name)
