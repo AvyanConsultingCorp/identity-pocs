@@ -2,6 +2,7 @@
 # Set Variables, Hashtable, Arrays.
 $Error.Clear()
 $ProfilePath = "$scriptRoot\auth.json"
+$env="dev"
 $Script:uniqueDeploymentId = New-Guid
 $scriptRoot = Split-Path (Split-Path ( Split-Path $MyInvocation.MyCommand.Path ))
 $sqlTdeKeyUrl = "auto-update"

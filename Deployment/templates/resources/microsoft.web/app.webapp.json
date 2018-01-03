@@ -23,23 +23,11 @@
         "description": "Location for web app."
       }
     },
-    "DeployPackageURI": {
+    "deployPackageURI": {
       "type": "string",
       "minLength": 1,
       "metadata": {
         "description": "WebDeploy package location."
-      }
-    },
-    "appInsightsResourceGroup": {
-      "type": "string",
-      "metadata": {
-        "description": "Name of resource group for application insight."
-      }
-    },
-    "appInsightsName": {
-      "type": "string",
-      "metadata": {
-        "description": "AppInsight name."
       }
     },
     "tags": {
@@ -52,17 +40,12 @@
         "type": "Microsoft.Web/sites",
         "location": "[parameters('location')]",
         "apiVersion": "2015-08-01",
-        "tags": "[parameters('tags')]",
+        "tags": "[parameters('tags').scenario]",
         "properties": {
           "name": "[parameters('WebAppName')]",
           "serverFarmId": "[resourceId('Microsoft.Web/serverfarms/', parameters('hostingPlanName'))]",
           "siteConfig": {
-            "appSettings": [
-              {
-                "name": "APPINSIGHTS_INSTRUMENTATIONKEY",
-                "value": "[reference(resourceId(parameters('appInsightsResourceGroup'),'microsoft.insights/components/', parameters('appInsightsName')), '2015-05-01').InstrumentationKey]"
-              }
-            ]
+            "appSettings": []
           }
         },
 
@@ -79,7 +62,7 @@
               "displayName": "WebAppMSDeploy"
             },
             "properties": {
-              "packageUri": "[parameters('DeployPackageURI')]"
+              "packageUri": "[parameters('deployPackageURI')]"
             }
           }
         ]
