@@ -217,7 +217,6 @@ function Update-RoleAssignments {
     {
 		$jsonObj = Get-Content $inputFile
 		$jsonObj = $jsonObj -replace 'hash', $prefix
-		$jsonObj = $jsonObj -replace 'env', $env
 		$jsonObj | Out-File $env:Temp\roleassignments.json -Force
 		$jsonObj = Get-Content $env:Temp\roleassignments.json | ConvertFrom-Json
 		$users = ($jsonObj.UserConfiguration).PSObject.Properties.Name
@@ -282,11 +281,10 @@ function Invoke-ARMDeployment {
             ValueFromPipelineByPropertyName = $true,
             Position = 2)]
         [string]$location,
-        [Parameter(Mandatory = $false,
-            ValueFromPipelineByPropertyName = $true,
-            Position = 3)]
-        [ValidateSet("dev", "prod")]
-        [string]$env = 'dev',
+		[Parameter(Mandatory=$true,
+			ValueFromPipelineByPropertyName=$true,
+		Position=3)]
+		[string]$identityAdApplicationClientId,
         [Parameter(Mandatory = $true,
         ValueFromPipelineByPropertyName = $true,
         Position = 4)]
@@ -298,13 +296,12 @@ function Invoke-ARMDeployment {
     )
     $null = Save-AzureRmContext -Path $ProfilePath -Force
     try {
-        $deploymentHash = Get-StringHash(($subscriptionId, $resourceGroupPrefix, $env) -join '-')
+        $deploymentHash = Get-StringHash(($subscriptionId, $resourceGroupPrefix) -join '-')
         if ($prerequisiteRefresh) {
             Publish-BuildingBlocksTemplates $deploymentHash
         }
         $deploymentData = Get-DeploymentData $deploymentHash
         $deployments = @{
-            #1 = @{"name" = "monitoring"; "rg" = "monitoring"}
             1 = @{"name" = "workload"; "rg" = "workload"};        
 		}
         foreach ($step in $steps) {
@@ -333,9 +330,9 @@ function Invoke-ARMDeployment {
                     -ErrorAction Stop -Verbose 4>&1
             }.GetNewClosure()
             $Script:newDeploymentName = (($deploymentData[0], ($deployments.$step).name) -join '-').ToString().Replace('\','-')
-            $Script:newDeploymentResourceGroupName = (($resourceGroupPrefix,($deployments.$step).rg,$env,'rg' ) -join '-')
+            $Script:newDeploymentResourceGroupName = (($resourceGroupPrefix,($deployments.$step).rg,'rg' ) -join '-')
             Start-job -Name ("$step-create") -ScriptBlock $importSession -Debug `
-                -ArgumentList (($resourceGroupPrefix,($deployments.$step).rg,$env,'rg' ) -join '-'), "$scriptroot\templates\scenarios\azuredeploy.json", $deploymentData[1], (($deploymentData[0], ($deployments.$step).name) -join '-').ToString().Replace('\','-'), $scriptRoot, $subscriptionId
+                -ArgumentList (($resourceGroupPrefix,($deployments.$step).rg,'rg' ) -join '-'), "$scriptroot\templates\scenarios\$(($deployments.$step).name)\azuredeploy.json", $deploymentData[1], (($deploymentData[0], ($deployments.$step).name) -join '-').ToString().Replace('\','-'), $scriptRoot, $subscriptionId
         }
     }
     catch {
@@ -348,9 +345,9 @@ function Invoke-ARMDeployment {
     This function publish required scripts and templates to artifacts storage account for deployment.
 #>
 function Publish-BuildingBlocksTemplates ($hash) {
-    $StorageAccount = Get-AzureRmStorageAccount -ResourceGroupName (($resourceGroupPrefix,'artifacts',$env,'rg') -join '-')  -Name $hash -ErrorAction SilentlyContinue
+    $StorageAccount = Get-AzureRmStorageAccount -ResourceGroupName (($resourceGroupPrefix,'artifacts','rg') -join '-')  -Name $hash -ErrorAction SilentlyContinue
     if (!$StorageAccount) {
-        $StorageAccount = New-AzureRmStorageAccount -ResourceGroupName (($resourceGroupPrefix,'artifacts',$env,'rg') -join '-') -Name $hash -Type Standard_LRS `
+        $StorageAccount = New-AzureRmStorageAccount -ResourceGroupName (($resourceGroupPrefix,'artifacts','rg') -join '-') -Name $hash -Type Standard_LRS `
             -Location $location -ErrorAction Stop
     }
     $ContainerList = (Get-AzureStorageContainer -Context $StorageAccount.Context | Select-Object -ExpandProperty Name)
@@ -364,7 +361,7 @@ function Publish-BuildingBlocksTemplates ($hash) {
             log "Uploaded $($_.FullName) to $($StorageAccount.StorageAccountName)." DarkYellow
         }
     }
-    Get-ChildItem $scriptroot -Directory -Filter functions | ForEach-Object {
+    Get-ChildItem $scriptroot -Directory -Filter artifacts | ForEach-Object {
         $Directory = $_
         if ( $Directory -notin $ContainerList ) {
             $StorageAccount | New-AzureStorageContainer -Name $Directory.Name -Permission Container -ErrorAction Stop | Out-Null
@@ -385,7 +382,6 @@ function Get-DeploymentData($hash) {
     $deploymentName = "{0}-{1}-{2}" -f $deploymentPrefix, (Get-Date -Format MMddyyyy), $uniqueDeploymentHash
     $localIP = Invoke-RestMethod http://ipinfo.io/json | Select-Object -exp ip
     $parametersData = Get-Content "$scriptroot\templates\azuredeploy.parameters.json" | ConvertFrom-Json
-    $parametersData.parameters.environmentReference.value.env = $env
     $parametersData.parameters.environmentReference.value.prefix = $resourceGroupPrefix
     $parametersData.parameters.environmentReference.value._artifactsLocation = 'https://{0}.blob.core.windows.net/' -f $hash
     $parametersData.parameters.environmentReference.value.adAppClientId = $identityAdApplicationClientId

@@ -40,7 +40,7 @@
         "type": "Microsoft.Web/sites",
         "location": "[parameters('location')]",
         "apiVersion": "2015-08-01",
-        "tags": "[parameters('tags').scenario]",
+        "tags": "[parameters('tags')]",
         "properties": {
           "name": "[parameters('WebAppName')]",
           "serverFarmId": "[resourceId('Microsoft.Web/serverfarms/', parameters('hostingPlanName'))]",

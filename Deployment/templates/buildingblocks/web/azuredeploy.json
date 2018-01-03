@@ -67,7 +67,7 @@
             "value": "[parameters('location')]"
           },
           "DeployPackageURI": {
-            "value": "[concat(parameters('_artifactsLocation'),'/artifacts/IdentityScenarioOne.Webapp.zip')]"
+            "value": "[concat(parameters('_artifactsLocation'),'artifacts/scenario/1/webapp/IdentityOne.zip')]"
           },
           "tags": {
             "value": "[union(parameters('tags'), parameters('webApp').tags)]"

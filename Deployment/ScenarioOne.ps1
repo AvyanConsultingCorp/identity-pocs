@@ -70,7 +70,7 @@ param
     [Parameter(Mandatory = $false, 
     ParameterSetName = "CleanUp", 
     Position = 7)]
-    [ValidateSet("westus2","westcentralus")]
+    [ValidateSet("eastus","westus2","westcentralus")]
 	[Alias("loc")]
     [string]$location = "westcentralus",
 
@@ -80,17 +80,6 @@ param
     Position = 8)]
     [Alias("dpwd")]
     [string]$deploymentPassword = 'null',
-
-    #Environment.
-    [Parameter(Mandatory = $false,
-    ParameterSetName = "Deployment",
-    Position = 9)]
-    [Parameter(Mandatory = $false, 
-    ParameterSetName = "CleanUp", 
-    Position = 8)]
-    [Alias("env")]
-    [ValidateSet("prod","dev")] 
-    [string]$environment = 'dev',
  
     #Switch to install required modules.
     [Parameter(Mandatory = $true,
@@ -193,29 +182,23 @@ else {
     }
     catch [System.Exception]
     {
-        Break
+        Write-Host $_
     }
 
     Write-Host "Wait for AAD Users to be provisioned."
     Start-Sleep 10
 
-    ### Create Resource Group for deployment and assigning RBAC to users.
-    $components = @("artifacts","workload")
-    $components | ForEach-Object { 
-        $rgName = (($deploymentPrefix,$_,$environment,'rg') -join '-')
-        Write-Host "Creating ResourceGroup $rgName at $location."
-        New-AzureRmResourceGroup -Name $rgName -Location $location -Force -OutVariable $_
-    }
     try {
     ### Create PSCredential Object for SiteAdmin
-    $siteAdminUserName = "Reed_SiteAdmin@" + $tenantDomain
-    $siteAdmincredential = New-Object System.Management.Automation.PSCredential ($siteAdminUserName, $secureDeploymentPassword)
+    #$siteAdminUserName = "Reed_SiteAdmin@" + $tenantDomain
+    #$siteAdmincredential = New-Object System.Management.Automation.PSCredential ($siteAdminUserName, $secureDeploymentPassword)
     
     ### Connect to AzureRM using SiteAdmin
-    Write-Host "Connecting to AzureRM Subscription $subscriptionId using Reed_SiteAdmin Account($siteAdminUserName)"
-    $siteAdminContext =Login-AzureRmAccount -SubscriptionId $subscriptionId -TenantId $tenantId -Credential $siteAdmincredential
+    Write-Host "Connecting to AzureRM Subscription $subscriptionId using Account($globalAdminUsername)"
+    $credential = New-Object System.Management.Automation.PSCredential ($globalAdminUsername, $globalAdminPassword)
+    $globalAdminContext = Login-AzureRmAccount -Credential $credential -Subscription $subscriptionId -ErrorAction SilentlyContinue
     
-    if($siteAdminContext -ne $null){
+	if($globalAdminContext -ne $null){
        Write-Host "Connection to AzureRM was successful using Reed_SiteAdmin Account." -ForegroundColor Green
     }
     Else{
@@ -230,6 +213,7 @@ catch {
 }
     Start-Sleep 10
 
+	$adAppClientId=""
     # Create Azure Active Directory apps in default directory.
     try{
         $AppServiceURL = (("http://",$deploymentPrefix,"-identity-app.azurewebsites.net") -join '' )
@@ -239,6 +223,7 @@ catch {
         Write-Host "Creating AAD Application deployment"
         $identityAADApplication = New-AzureRmADApplication -DisplayName $displayName -HomePage $AppServiceURL -IdentifierUris $AppServiceURL -Password $secureDeploymentPassword
         $identityAdApplicationClientId = $identityAADApplication.ApplicationId.Guid
+		$adAppClientId = $identityAdApplicationClientId.ToString()
         $identityAdApplicationObjectId = $identityAADApplication.ObjectId.Guid.ToString()
         Write-Host "AAD Application  was successful. AppID is $identityAdApplicationClientId" -ForegroundColor Green
         # Create a service principal for the AD Application and add a Reader role to the principal 
@@ -247,31 +232,69 @@ catch {
         Start-Sleep -s 30 # Wait till the ServicePrincipal is completely created. Usually takes 20+secs. Needed as Role assignment needs a fully deployed servicePrincipal
         Write-Host "Service principal for deployment was successful - $($identityServicePrincipal.DisplayName)"
         }
+		else{
+			$adAppClientId = $identityAADApplication.ApplicationId.Guid.ToString()
+		}
     }
     catch {
         
        Write-Host $_.Exception.Message
         Break
     }
+
+	### Create Resource Group for deployment and assigning RBAC to users.
+    $components = @("artifacts","workload")
+    $components | ForEach-Object { 
+        $rgName = (($deploymentPrefix,$_,'rg') -join '-')
+        Write-Host "Creating ResourceGroup $rgName at $location."
+        New-AzureRmResourceGroup -Name $rgName -Location $location -Force -OutVariable $_
+    }
+
+	  ### Invoke ARM deployment.
+        log "Intiating Zero Down Time Solution Deployment." Cyan
+        
+        log "Invoke Background Job Deployment for Workload"
+        Invoke-ARMDeployment -subscriptionId $subscriptionId -resourceGroupPrefix $deploymentPrefix -location $location -identityAdApplicationClientId $adAppClientId -steps 1 -prerequisiteRefresh
+
+        # Pause Session for Background Job to Initiate.
+        log "Waiting session for background job to initiate"
+        Start-Sleep 20
+
+        #Get deployment status
+        while ((Get-Job -Name '1-create' | Select-Object -Last 1).State -eq 'Running') {
+            Get-ARMDeploymentStatus -jobName '1-create'
+            Start-Sleep 10
+        }
+        if ((Get-Job -Name '1-create' | Select-Object -Last 1).State -eq 'Completed') 
+        {
+            Get-ARMDeploymentStatus -jobName '1-create'
+        }
+        else
+        {
+            Get-ARMDeploymentStatus -jobName '1-create'
+            log $error[0] -color Red
+            Break
+        }
+
             
-    try {
-    $resourceGroupPrefix=$deploymentPrefix
-    $deploymentHash = Get-StringHash(($subscriptionId,$resourceGroupPrefix ) -join '-')
-    Publish-BuildingBlocksTemplates $deploymentHash
-    $parameters=Get-Content 'templates/scenario1.parameters.json'|ConvertFrom-Json
-	$parameters.parameters.deployPackageURI.value="$ScriptRoot/artifacts/scenario/one/webapp/ScenarioOne.zip"
-	Remove-Item "$scriptroot\templates\scenario1.parameters.json"
-	($parameters | ConvertTo-Json -Depth 2) | Out-File "$scriptroot\templates\scenario1.parameters.json"
+ #   try {
+ #   $resourceGroupPrefix=$deploymentPrefix
+ #   $deploymentHash = Get-StringHash(($subscriptionId,$resourceGroupPrefix ) -join '-')
+ #   Publish-BuildingBlocksTemplates $deploymentHash
+ #   $parameters=Get-Content 'templates/scenario1.parameters.json'|ConvertFrom-Json
+	#$parameters.parameters.deployPackageURI.value="$ScriptRoot/artifacts/scenario/one/webapp/ScenarioOne.zip"
+	#Remove-Item "$scriptroot\templates\scenario1.parameters.json"
+	#($parameters | ConvertTo-Json -Depth 2) | Out-File "$scriptroot\templates\scenario1.parameters.json"
 
-      ### Invoke ARM deployment.
-    Write-Host "Intiating Identity Deployment."
-    $resourceGroupdeploy=(($deploymentPrefix,'workload',$environment,'rg') -join '-')
-	New-AzureRmResourceGroupDeployment -Name 'deploy-scenario1' -ResourceGroupName "$resourceGroupdeploy"  -TemplateFile "$ScriptRoot/templates/resources/microsoft.web/app.webapp.json" -TemplateParameterFile "$ScriptRoot/templates/scenario1.parameters.json"
-    Start-Sleep 20
+ #     ### Invoke ARM deployment.
+ #   Write-Host "Intiating Identity Deployment."
+ #   $resourceGroupdeploy=(($deploymentPrefix,'workload',$environment,'rg') -join '-')
+	#New-AzureRmResourceGroupDeployment -Name 'deploy-scenario1' -ResourceGroupName "$resourceGroupdeploy"  -TemplateFile "$ScriptRoot/templates/resources/microsoft.web/app.webapp.json" -TemplateParameterFile "$ScriptRoot/templates/scenario1.parameters.json"
+ #   Start-Sleep 20
 
-    }
-    catch {
-        Write-Host $_.Exception.Message
-        exit 1337
-    }
+ #   }
+ #   catch {
+ #       Write-Host $_.Exception.Message
+ #       exit 1337
+ #   }
 }
