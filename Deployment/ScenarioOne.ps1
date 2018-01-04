@@ -190,8 +190,8 @@ else {
 
     try {
     ### Create PSCredential Object for SiteAdmin
-    #$siteAdminUserName = "Reed_SiteAdmin@" + $tenantDomain
-    #$siteAdmincredential = New-Object System.Management.Automation.PSCredential ($siteAdminUserName, $secureDeploymentPassword)
+    $siteAdminUserName = "Reed_SiteAdmin@" + $tenantDomain
+    $siteAdmincredential = New-Object System.Management.Automation.PSCredential ($siteAdminUserName, $secureDeploymentPassword)
     
     ### Connect to AzureRM using SiteAdmin
     Write-Host "Connecting to AzureRM Subscription $subscriptionId using Account($globalAdminUsername)"
@@ -216,7 +216,7 @@ catch {
 	$adAppClientId=""
     # Create Azure Active Directory apps in default directory.
     try{
-        $AppServiceURL = (("http://",$deploymentPrefix,"-identity-app.azurewebsites.net") -join '' )
+        $AppServiceURL = (("http://",$deploymentPrefix,"-identity-webapp.azurewebsites.net") -join '' )
         $displayName = "$deploymentPrefix Identity Web Application"
 
         if (!($identityAADApplication = Get-AzureRmADApplication -IdentifierUri $AppServiceURL)) {
@@ -235,15 +235,22 @@ catch {
 		else{
             $adAppClientId = $identityAADApplication.ApplicationId.Guid.ToString()
             $identityAdApplicationObjectId = $identityAADApplication.ObjectId.Guid.ToString()
-            $identityAdServicePrincipalObjectId = (Get-AzureRmADServicePrincipal | ?  DispLayName -eq "$deploymentPrefix Identity Application").Id.Guid
-            log "AAD Application for HealthCare-LOS already exist with AppID - $identityAdApplicationClientId"
-            New-AzureRmADAppCredential -ObjectId $identityAADApplication.ObjectId.Guid -Password $deploymentPassword
+            <#$identityAdServicePrincipalObjectId = (Get-AzureRmADServicePrincipal | ?  DispLayName -eq "$deploymentPrefix Identity Application").Id.Guid#>
+            
+            New-AzureRmADAppCredential -ObjectId $identityAADApplication.ObjectId.Guid -Password $secureDeploymentPassword
         }
         #Connect to Azure AD.
-        Connect-AzureAD -TenantId $tenantId -Credential $siteAdmincredential
-        $replyUrl =  (('https://', $deploymentPrefix ,'-identity-app', $environment ,'.azurewebsites.net/.auth/login/done') -join '')
-        $ServicePrincipalId = (Get-AzureADServicePrincipal -SearchString $displayName).ObjectId.ToString()
-        if ($ServicePrincipalId) {
+        Connect-AzureAD -TenantId $tenantId -Credential $credential
+        $replyUrl =  (('https://', $deploymentPrefix ,'-identity-webapp' ,'.azurewebsites.net/.auth/login/aad/callback') -join '')
+		Set-AzureADApplication -ObjectId $identityAdApplicationObjectId -ReplyUrls $replyUrl
+		 $requiredResourceAccess = New-Object -TypeName "Microsoft.Open.AzureAD.Model.RequiredResourceAccess"
+                    $resourceAccess1 = New-Object -TypeName "Microsoft.Open.AzureAD.Model.ResourceAccess" -ArgumentList "311a71cc-e848-46a1-bdf8-97ff7156d8e6","Scope"
+                    $resourceAccess2 = New-Object -TypeName "Microsoft.Open.AzureAD.Model.ResourceAccess" -ArgumentList "5778995a-e1bf-45b8-affa-663a9f3f4d04","Role"
+                    $requiredResourceAccess.ResourceAccess = $resourceAccess1,$resourceAccess2
+                    $requiredResourceAccess.ResourceAppId = "00000002-0000-0000-c000-000000000000" #Resource App ID for Azure ActiveDirectory
+                    Set-AzureADApplication -ObjectId $identityAdApplicationObjectId -RequiredResourceAccess $requiredResourceAccess       
+        <#$ServicePrincipalId = (Get-AzureADServicePrincipal -SearchString $displayName).ObjectId.ToString()#>
+        <#if ($ServicePrincipalId) {
             log "ServicePrincipal $displayName was found."
 			
 			log "Add reply url $replyUrl"
@@ -281,7 +288,7 @@ catch {
         else {
             log "Error: Could not find ServicePrincipal with DisplayName - $displayName." Red
             Break
-        }
+        }#>
     }
     catch {
         
@@ -298,7 +305,7 @@ catch {
     }
 
 	  ### Invoke ARM deployment.
-        log "Intiating Zero Down Time Solution Deployment." Cyan
+        log "Initiating Identity POC Deployment." Cyan
         
         log "Invoke Background Job Deployment for Workload"
         Invoke-ARMDeployment -subscriptionId $subscriptionId -resourceGroupPrefix $deploymentPrefix -location $location -identityAdApplicationClientId $adAppClientId -steps 1 -prerequisiteRefresh

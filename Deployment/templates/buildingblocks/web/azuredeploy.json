@@ -18,6 +18,15 @@
     "location": {
       "type": "string"
     },
+	"tenantId": {
+            "type": "string"
+    },
+    "adAppClientId": {
+            "type": "string"
+    },
+    "adAppClientPassword": {
+            "type": "securestring"
+    },
     "tags": {
       "type": "object"
     }
@@ -67,11 +76,46 @@
             "value": "[parameters('location')]"
           },
           "DeployPackageURI": {
-            "value": "[concat(parameters('_artifactsLocation'),'artifacts/scenario/1/webapp/IdentityOne.zip')]"
+            "value": "[concat(parameters('_artifactsLocation'),'artifacts/scenario/1/webapp/IdentityScenarioOne.Webapp.zip')]"
           },
           "tags": {
             "value": "[union(parameters('tags'), parameters('webApp').tags)]"
           }
+        }
+      }
+    },
+	{
+      "apiVersion": "2017-05-10",
+      "name": "Webapp-Configuration",
+      "type": "Microsoft.Resources/deployments",
+      "dependsOn": [
+        "[concat(parameters('webApp').name)]",
+		"webapp-appsvcplan"
+      ],
+      "properties": {
+        "mode": "Incremental",
+        "templateLink": {
+          "uri": "[concat(parameters('_artifactsLocation'),'templates/resources/microsoft.web/appconfig.webapp.json')]"
+        },
+        "parameters": {
+          "adAppClientId": {
+            "value": "[parameters('adAppClientId')]"
+          },
+          "WebAppName": {
+            "value": "[toLower(concat(parameters('uniquePrefix'),'-',parameters('webApp').serviceName,'-webapp'))]"
+          },
+          "location": {
+            "value": "[parameters('location')]"
+          },
+          "tenantId": {
+            "value": "[parameters('tenantId')]"
+          },
+		  "adAppClientPassword": {
+            "value": "[parameters('adAppClientPassword')]"
+          },
+		  "webAppURL":{
+			"value": "[concat('https://', parameters('uniquePrefix'), '-identity-webapp.azurewebsites.net/.auth/login/aad/callback')]"
+		  }
         }
       }
     }
