@@ -233,12 +233,59 @@ catch {
         Write-Host "Service principal for deployment was successful - $($identityServicePrincipal.DisplayName)"
         }
 		else{
-			$adAppClientId = $identityAADApplication.ApplicationId.Guid.ToString()
-		}
+            $adAppClientId = $identityAADApplication.ApplicationId.Guid.ToString()
+            $identityAdApplicationObjectId = $identityAADApplication.ObjectId.Guid.ToString()
+            $identityAdServicePrincipalObjectId = (Get-AzureRmADServicePrincipal | ?  DispLayName -eq "$deploymentPrefix Identity Application").Id.Guid
+            log "AAD Application for HealthCare-LOS already exist with AppID - $identityAdApplicationClientId"
+            New-AzureRmADAppCredential -ObjectId $identityAADApplication.ObjectId.Guid -Password $deploymentPassword
+        }
+        #Connect to Azure AD.
+        Connect-AzureAD -TenantId $tenantId -Credential $siteAdmincredential
+        $replyUrl =  (('https://', $deploymentPrefix ,'-identity-app', $environment ,'.azurewebsites.net/.auth/login/done') -join '')
+        $ServicePrincipalId = (Get-AzureADServicePrincipal -SearchString $displayName).ObjectId.ToString()
+        if ($ServicePrincipalId) {
+            log "ServicePrincipal $displayName was found."
+			
+			log "Add reply url $replyUrl"
+			Set-AzureADApplication -ObjectId $identityAdApplicationObjectId -ReplyUrls $replyUrl
+
+            if (Get-AzureADServiceAppRoleAssignment -ObjectId $ServicePrincipalId) {
+                if ((Get-AzureADServiceAppRoleAssignment -ObjectId $ServicePrincipalId).PrincipalDisplayName -contains 'Alice_ApplicationManager') {
+                    log "AAD ServiceApp Role Assignment for Alice_ApplicationManager already exists."
+                }
+                else {
+                    log "Updating ReplyUrl and AppRoles on $displayName."
+                    # Update Azure AD Application with Response URLs and App Roles.
+                    $manifest = Get-Content "$scriptroot\scripts\jsonscripts\aad.manifest.json" | ConvertFrom-Json
+                    $requiredResourceAccess = New-Object -TypeName "Microsoft.Open.AzureAD.Model.RequiredResourceAccess"
+                    $resourceAccess1 = New-Object -TypeName "Microsoft.Open.AzureAD.Model.ResourceAccess" -ArgumentList "311a71cc-e848-46a1-bdf8-97ff7156d8e6","Scope"
+                    $resourceAccess2 = New-Object -TypeName "Microsoft.Open.AzureAD.Model.ResourceAccess" -ArgumentList "5778995a-e1bf-45b8-affa-663a9f3f4d04","Role"
+                    $requiredResourceAccess.ResourceAccess = $resourceAccess1,$resourceAccess2
+                    $requiredResourceAccess.ResourceAppId = "00000002-0000-0000-c000-000000000000" #Resource App ID for Azure ActiveDirectory
+                    Set-AzureADApplication -ObjectId $identityAdApplicationObjectId -AppRoles $manifest.appRoles -RequiredResourceAccess $requiredResourceAccess       
+            }
+            }
+            else {
+                log "Updating ReplyUrl and AppRoles on $displayName."
+                # Update Azure AD Application with Response URLs and App Roles.
+                $manifest = Get-Content "$scriptroot\scripts\jsonscripts\aad.manifest.json" | ConvertFrom-Json
+                $requiredResourceAccess = New-Object -TypeName "Microsoft.Open.AzureAD.Model.RequiredResourceAccess"
+                $resourceAccess1 = New-Object -TypeName "Microsoft.Open.AzureAD.Model.ResourceAccess" -ArgumentList "311a71cc-e848-46a1-bdf8-97ff7156d8e6","Scope"
+                $resourceAccess2 = New-Object -TypeName "Microsoft.Open.AzureAD.Model.ResourceAccess" -ArgumentList "5778995a-e1bf-45b8-affa-663a9f3f4d04","Role"
+                $requiredResourceAccess.ResourceAccess = $resourceAccess1,$resourceAccess2
+                $requiredResourceAccess.ResourceAppId = "00000002-0000-0000-c000-000000000000"
+                Set-AzureADApplication -ObjectId $healthCareAdApplicationObjectId -AppRoles $manifest.appRoles -ReplyUrls $replyUrl `
+                    -RequiredResourceAccess $requiredResourceAccess
+            }
+        }
+        else {
+            log "Error: Could not find ServicePrincipal with DisplayName - $displayName." Red
+            Break
+        }
     }
     catch {
         
-       Write-Host $_.Exception.Message
+       log $_.Exception.Message
         Break
     }
 

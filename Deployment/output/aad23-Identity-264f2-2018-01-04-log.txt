@@ -1,0 +1,8 @@
+2018-01-04 07:00:06 - Connecting to AzureRM Subscription fb828b18-79dd-400c-919a-a393d88835e5 using Global Administrator Account.
+2018-01-04 07:00:08 - Connection using Global Administrator Account was successful.
+2018-01-04 07:00:08 - Creating AAD account for solution.
+2018-01-04 07:00:08 - Initiating separate powershell session for creating accounts.
+2018-01-04 07:00:15 - Wait for AAD Users to be provisioned.
+2018-01-04 07:00:25 - Connecting to AzureRM Subscription fb828b18-79dd-400c-919a-a393d88835e5 using Account(Alex_SiteAdmin@pcidemoxoutlook560.onmicrosoft.com)
+2018-01-04 07:00:26 - Connection to AzureRM was successful using Reed_SiteAdmin Account.
+2018-01-04 07:00:38 - The property 'Id' cannot be found on this object. Verify that the property exists.

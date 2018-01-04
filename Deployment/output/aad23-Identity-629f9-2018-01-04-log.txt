@@ -1,0 +1,8 @@
+2018-01-04 07:41:53 - Connecting to AzureRM Subscription fb828b18-79dd-400c-919a-a393d88835e5 using Global Administrator Account.
+2018-01-04 07:41:54 - Connection using Global Administrator Account was successful.
+2018-01-04 07:41:54 - Creating AAD account for solution.
+2018-01-04 07:41:54 - Initiating separate powershell session for creating accounts.
+2018-01-04 07:41:56 - Wait for AAD Users to be provisioned.
+2018-01-04 07:42:06 - Connecting to AzureRM Subscription fb828b18-79dd-400c-919a-a393d88835e5 using Account(Alex_SiteAdmin@pcidemoxoutlook560.onmicrosoft.com)
+2018-01-04 07:42:07 - Connection to AzureRM was successful using Reed_SiteAdmin Account.
+2018-01-04 07:42:17 - The variable '$environment' cannot be retrieved because it has not been set.
