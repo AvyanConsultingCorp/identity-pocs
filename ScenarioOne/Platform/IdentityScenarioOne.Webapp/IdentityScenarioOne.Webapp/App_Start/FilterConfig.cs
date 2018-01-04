@@ -1,7 +1,7 @@
 ﻿using System.Web;
 using System.Web.Mvc;
 
-namespace IdentityScenarioOne
+namespace IdentityScenarioOne.Webapp
 {
     public class FilterConfig
     {

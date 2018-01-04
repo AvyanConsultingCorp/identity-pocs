@@ -1,17 +1,12 @@
-﻿using Microsoft.IdentityModel.Clients.ActiveDirectory;
-using System;
+﻿using System;
 using System.Collections.Generic;
+using System.IdentityModel.Tokens;
 using System.Linq;
-using System.Net;
-using System.Net.Http;
-using System.Net.Http.Headers;
-using System.Threading.Tasks;
 using System.Web;
 using System.Web.Mvc;
 
-namespace IdentityScenarioOne.Controllers
+namespace IdentityScenarioOne.Webapp.Controllers
 {
-
     public class HomeController : Controller
     {
         public ActionResult Index()
@@ -22,6 +17,7 @@ namespace IdentityScenarioOne.Controllers
             }
             else
             {
+                
                 var userClaims = User.Identity as System.Security.Claims.ClaimsIdentity;
 
                 //You get the user’s first and last name below:
@@ -34,8 +30,20 @@ namespace IdentityScenarioOne.Controllers
                 //ViewBag.TenantId = userClaims?.FindFirst("http://schemas.microsoft.com/identity/claims/tenantid")?.Value;
                 return View();
             }
-
         }
 
+        public ActionResult About()
+        {
+            ViewBag.Message = "Your application description page.";
+
+            return View();
+        }
+
+        public ActionResult Contact()
+        {
+            ViewBag.Message = "Your contact page.";
+
+            return View();
+        }
     }
 }
