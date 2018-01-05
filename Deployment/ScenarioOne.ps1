@@ -106,7 +106,7 @@ Set-StrictMode -Version 3
 $scriptRoot = Split-Path $MyInvocation.MyCommand.Path
 
 . $scriptroot\scripts\pshscripts\PshFunctions.ps1
-### Create Output  folder to storeWrite-Hosts, deploymentoutputs etc.
+### Create Output  folder to storelogs, deploymentoutputs etc.
 if(! (Test-Path -Path "$(Split-Path $MyInvocation.MyCommand.Path)\output")) {
     New-Item -Path $(Split-Path $MyInvocation.MyCommand.Path) -Name 'output' -ItemType Directory
 }
@@ -120,10 +120,10 @@ $requiredModules=@{
 }
 
 if ($installModules) {
-    Write-Host "Trying to install listed modules.."
+    log "Trying to install listed modules.."
     $requiredModules
     Install-RequiredModules -moduleNames $requiredModules
-    Write-Host "All the required modules are now installed. You can now re-run the script without 'installModules' switch." -ForegroundColor Cyan
+    log "All the required modules are now installed. You can now re-run the script without 'installModules' switch." Cyan
     Break
 }
 # Remove all Azure credentials, account, and subscription information.
@@ -135,15 +135,15 @@ $deploymentprefix = $deploymentprefix.ToLower()
 $credential = New-Object System.Management.Automation.PSCredential ($globalAdminUsername, $globalAdminPassword)
 
 ### Connect to AzureRM using Global Administrator Account
-Write-Host "Connecting to AzureRM Subscription $subscriptionId using Global Administrator Account."
+log "Connecting to AzureRM Subscription $subscriptionId using Global Administrator Account."
 ### Create PSCredential Object for GlobalAdmin Account
 $credential = New-Object System.Management.Automation.PSCredential ($globalAdminUsername, $globalAdminPassword)
 $globalAdminContext =Login-AzureRmAccount -Credential $credential -Subscription $subscriptionId -ErrorAction SilentlyContinue
 if($globalAdminContext -ne $null){
-   Write-Host "Connection using Global Administrator Account was successful." -ForegroundColor Green
+   log "Connection using Global Administrator Account was successful." Green
 }
 Else{
-   Write-Host "Failed connecting to Azure using Global Administrator Account." -ForegroundColor Red
+   log "Failed connecting to Azure using Global Administrator Account." Red
     Break
 }
 
@@ -155,9 +155,9 @@ else {
 
     ### Set Deployment password if not already set.
     if ($deploymentPassword -eq 'null') {
-       Write-Host "Deployment password was not provided. Creating strong password for deployment."
+       log "Deployment password was not provided. Creating strong password for deployment."
         $deploymentPassword = New-RandomPassword
-       Write-Host "Deployment password $deploymentPassword generated successfully."
+       log "Deployment password $deploymentPassword generated successfully."
     }
 
 	### Convert deploymentPasssword to SecureString.
@@ -172,20 +172,20 @@ else {
     #import script
     #. $scriptroot\scripts\pshscripts\Configure-AADUsers.ps1 -tenantId $tenantId -subscriptionId $subscriptionId -tenantDomain $tenantDomain -globalAdminUsername $globalAdminUsername -globalAdminPassword $securePassword -deploymentPassword $deploymentPassword
     ### Configure AAD User Accounts.
-   Write-Host "Creating AAD account for solution."
+   log "Creating AAD account for solution."
     try
     {
-       Write-Host "Initiating separate powershell session for creating accounts."
+       log "Initiating separate powershell session for creating accounts."
        #Configure-AADUsers.ps1 
        .\scripts\pshscripts\Configure-AADUsers.ps1 -tenantId $tenantId -subscriptionId $subscriptionId -tenantDomain $tenantDomain -globalAdminUsername $globalAdminUsername -globalAdminPassword $securePassword -deploymentPassword $deploymentPassword
 
     }
     catch [System.Exception]
     {
-        Write-Host $_
+        log $_
     }
 
-    Write-Host "Wait for AAD Users to be provisioned."
+    log "Wait for AAD Users to be provisioned."
     Start-Sleep 10
 
     try {
@@ -194,21 +194,21 @@ else {
     $siteAdmincredential = New-Object System.Management.Automation.PSCredential ($siteAdminUserName, $secureDeploymentPassword)
     
     ### Connect to AzureRM using SiteAdmin
-    Write-Host "Connecting to AzureRM Subscription $subscriptionId using Account($globalAdminUsername)"
+    log "Connecting to AzureRM Subscription $subscriptionId using Account($globalAdminUsername)"
     $credential = New-Object System.Management.Automation.PSCredential ($globalAdminUsername, $globalAdminPassword)
     $globalAdminContext = Login-AzureRmAccount -Credential $credential -Subscription $subscriptionId -ErrorAction SilentlyContinue
     
 	if($globalAdminContext -ne $null){
-       Write-Host "Connection to AzureRM was successful using Reed_SiteAdmin Account." -ForegroundColor Green
+       log "Connection to AzureRM was successful using $globalAdminUsername Account." Green
     }
     Else{
-       Write-Host "Failed connecting to AzureRM using Reed_SiteAdmin Account." -ForegroundColor Red
+       log "Failed connecting to AzureRM using $globalAdminUsername Account." Red
         break
     }
 }
 catch {
     
-   Write-Host $_.Exception.Message
+   log $_.Exception.Message
     Break
 }
     Start-Sleep 10
@@ -220,17 +220,17 @@ catch {
         $displayName = "$deploymentPrefix Identity Web Application"
 
         if (!($identityAADApplication = Get-AzureRmADApplication -IdentifierUri $AppServiceURL)) {
-        Write-Host "Creating AAD Application deployment"
+        log "Creating AAD Application deployment"
         $identityAADApplication = New-AzureRmADApplication -DisplayName $displayName -HomePage $AppServiceURL -IdentifierUris $AppServiceURL -Password $secureDeploymentPassword
         $identityAdApplicationClientId = $identityAADApplication.ApplicationId.Guid
 		$adAppClientId = $identityAdApplicationClientId.ToString()
         $identityAdApplicationObjectId = $identityAADApplication.ObjectId.Guid.ToString()
-        Write-Host "AAD Application  was successful. AppID is $identityAdApplicationClientId" -ForegroundColor Green
+        log "AAD Application  was successful. AppID is $identityAdApplicationClientId" Green
         # Create a service principal for the AD Application and add a Reader role to the principal 
-        Write-Host "Creating Service principal for deployment"
+        log "Creating Service principal for deployment"
         $identityServicePrincipal = New-AzureRmADServicePrincipal -ApplicationId $identityAdApplicationClientId
         Start-Sleep -s 30 # Wait till the ServicePrincipal is completely created. Usually takes 20+secs. Needed as Role assignment needs a fully deployed servicePrincipal
-        Write-Host "Service principal for deployment was successful - $($identityServicePrincipal.DisplayName)"
+        log "Service principal for deployment was successful - $($identityServicePrincipal.DisplayName)"
         }
 		else{
             $adAppClientId = $identityAADApplication.ApplicationId.Guid.ToString()
@@ -249,46 +249,34 @@ catch {
                     $requiredResourceAccess.ResourceAccess = $resourceAccess1,$resourceAccess2
                     $requiredResourceAccess.ResourceAppId = "00000002-0000-0000-c000-000000000000" #Resource App ID for Azure ActiveDirectory
                     Set-AzureADApplication -ObjectId $identityAdApplicationObjectId -RequiredResourceAccess $requiredResourceAccess       
-        <#$ServicePrincipalId = (Get-AzureADServicePrincipal -SearchString $displayName).ObjectId.ToString()#>
-        <#if ($ServicePrincipalId) {
-            log "ServicePrincipal $displayName was found."
-			
-			log "Add reply url $replyUrl"
-			Set-AzureADApplication -ObjectId $identityAdApplicationObjectId -ReplyUrls $replyUrl
-
-            if (Get-AzureADServiceAppRoleAssignment -ObjectId $ServicePrincipalId) {
-                if ((Get-AzureADServiceAppRoleAssignment -ObjectId $ServicePrincipalId).PrincipalDisplayName -contains 'Alice_ApplicationManager') {
-                    log "AAD ServiceApp Role Assignment for Alice_ApplicationManager already exists."
-                }
-                else {
-                    log "Updating ReplyUrl and AppRoles on $displayName."
-                    # Update Azure AD Application with Response URLs and App Roles.
-                    $manifest = Get-Content "$scriptroot\scripts\jsonscripts\aad.manifest.json" | ConvertFrom-Json
-                    $requiredResourceAccess = New-Object -TypeName "Microsoft.Open.AzureAD.Model.RequiredResourceAccess"
-                    $resourceAccess1 = New-Object -TypeName "Microsoft.Open.AzureAD.Model.ResourceAccess" -ArgumentList "311a71cc-e848-46a1-bdf8-97ff7156d8e6","Scope"
-                    $resourceAccess2 = New-Object -TypeName "Microsoft.Open.AzureAD.Model.ResourceAccess" -ArgumentList "5778995a-e1bf-45b8-affa-663a9f3f4d04","Role"
-                    $requiredResourceAccess.ResourceAccess = $resourceAccess1,$resourceAccess2
-                    $requiredResourceAccess.ResourceAppId = "00000002-0000-0000-c000-000000000000" #Resource App ID for Azure ActiveDirectory
-                    Set-AzureADApplication -ObjectId $identityAdApplicationObjectId -AppRoles $manifest.appRoles -RequiredResourceAccess $requiredResourceAccess       
-            }
-            }
-            else {
-                log "Updating ReplyUrl and AppRoles on $displayName."
-                # Update Azure AD Application with Response URLs and App Roles.
-                $manifest = Get-Content "$scriptroot\scripts\jsonscripts\aad.manifest.json" | ConvertFrom-Json
-                $requiredResourceAccess = New-Object -TypeName "Microsoft.Open.AzureAD.Model.RequiredResourceAccess"
-                $resourceAccess1 = New-Object -TypeName "Microsoft.Open.AzureAD.Model.ResourceAccess" -ArgumentList "311a71cc-e848-46a1-bdf8-97ff7156d8e6","Scope"
-                $resourceAccess2 = New-Object -TypeName "Microsoft.Open.AzureAD.Model.ResourceAccess" -ArgumentList "5778995a-e1bf-45b8-affa-663a9f3f4d04","Role"
-                $requiredResourceAccess.ResourceAccess = $resourceAccess1,$resourceAccess2
-                $requiredResourceAccess.ResourceAppId = "00000002-0000-0000-c000-000000000000"
-                Set-AzureADApplication -ObjectId $healthCareAdApplicationObjectId -AppRoles $manifest.appRoles -ReplyUrls $replyUrl `
-                    -RequiredResourceAccess $requiredResourceAccess
-            }
+        
+    }
+    catch {
+        
+       log $_.Exception.Message
+        Break
+    }
+    
+    try {        
+        ### Connect to AzureAD using GlobalAdmin
+        log "Connecting to AzureAD using Account($globalAdminUsername)"
+        $credential = New-Object System.Management.Automation.PSCredential ($globalAdminUsername, $globalAdminPassword)
+        $globalAdminAdContext = Connect-AzureAD -Credential $credential -ErrorAction SilentlyContinue
+        #$globalAdminAdContext = Connect-MsolService -Credential $credential -ErrorAction SilentlyContinue
+        
+        if($globalAdminAdContext -ne $null){
+           log "Connection to AzureAD was successful using $globalAdminUsername Account."  Green
+           $upn='Guest_User@'+$tenantDomain
+           log "Trying to disable $upn using $globalAdminUsername Account."  Cyan
+           Set-AzureADUser -ObjectID $upn -AccountEnabled $false
+           #Set-MsolUser -UserPrincipalName $upn  -BlockCredential $true
+           log "Disabled $upn using $globalAdminUsername Account."  Green
+    
         }
-        else {
-            log "Error: Could not find ServicePrincipal with DisplayName - $displayName." Red
-            Break
-        }#>
+        Else{
+           log "Failed connecting to AzureAD using $globalAdminUsername Account."  Red
+            break
+        }
     }
     catch {
         
@@ -300,7 +288,7 @@ catch {
     $components = @("artifacts","workload")
     $components | ForEach-Object { 
         $rgName = (($deploymentPrefix,$_,'rg') -join '-')
-        Write-Host "Creating ResourceGroup $rgName at $location."
+        log "Creating ResourceGroup $rgName at $location."
         New-AzureRmResourceGroup -Name $rgName -Location $location -Force -OutVariable $_
     }
 
@@ -329,26 +317,4 @@ catch {
             log $error[0] -color Red
             Break
         }
-
-            
- #   try {
- #   $resourceGroupPrefix=$deploymentPrefix
- #   $deploymentHash = Get-StringHash(($subscriptionId,$resourceGroupPrefix ) -join '-')
- #   Publish-BuildingBlocksTemplates $deploymentHash
- #   $parameters=Get-Content 'templates/scenario1.parameters.json'|ConvertFrom-Json
-	#$parameters.parameters.deployPackageURI.value="$ScriptRoot/artifacts/scenario/one/webapp/ScenarioOne.zip"
-	#Remove-Item "$scriptroot\templates\scenario1.parameters.json"
-	#($parameters | ConvertTo-Json -Depth 2) | Out-File "$scriptroot\templates\scenario1.parameters.json"
-
- #     ### Invoke ARM deployment.
- #   Write-Host "Intiating Identity Deployment."
- #   $resourceGroupdeploy=(($deploymentPrefix,'workload',$environment,'rg') -join '-')
-	#New-AzureRmResourceGroupDeployment -Name 'deploy-scenario1' -ResourceGroupName "$resourceGroupdeploy"  -TemplateFile "$ScriptRoot/templates/resources/microsoft.web/app.webapp.json" -TemplateParameterFile "$ScriptRoot/templates/scenario1.parameters.json"
- #   Start-Sleep 20
-
- #   }
- #   catch {
- #       Write-Host $_.Exception.Message
- #       exit 1337
- #   }
 }
