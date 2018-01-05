@@ -45,11 +45,14 @@ Connect-AzureAD -Credential $credential -TenantId $tenantId
 $passwordProfile = New-Object -TypeName Microsoft.Open.AzureAD.Model.PasswordProfile
 $passwordProfile.Password = $deploymentPassword
 $passwordProfile.ForceChangePasswordNextLogin = $false
+$alluser = New-Object System.Collections.ArrayList
+$outputFile = New-Object System.Object
 
 ### Create AAD Users
-$actors = @('Reed_SiteAdmin','Alice_ApplicationManager','userthree')
+$actors = @('Reed_SiteAdmin','Alice_ApplicationManager','Guest_User')
 foreach ($user in $actors) {
     $upn = $user + '@' + $tenantDomain
+	$alluser.Add($upn)
     Write-Host -ForegroundColor Yellow "`nChecking if $upn exists in AAD."
     if (!(Get-AzureADUser -SearchString $user ))
     {
@@ -84,3 +87,9 @@ foreach ($user in $actors) {
         }
     }
 }
+  $scriptRoot = Split-Path $MyInvocation.MyCommand.Path
+  $outputFile | Add-Member NoteProperty -Name "users" -Value $alluser
+  $outputFile | Add-Member NoteProperty -Name "Password" -Value $deploymentPassword
+  $jsonoutput = $outputFile | ConvertTo-Json
+  $jsonoutput | Out-File $scriptRoot\users.txt
+  
