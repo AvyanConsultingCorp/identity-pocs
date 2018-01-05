@@ -33,7 +33,8 @@
           "tags": { "value": "[parameters('environmentReference').tags]" },
 		  "tenantId":{"value": "[parameters('environmentReference').tenantId]"},
 		  "adAppClientId": {"value": "[parameters('environmentReference').adAppClientId]"},
-		  "adAppClientPassword":{"value":"[parameters('environmentReference').deploymentPassword]"}
+		  "adAppClientPassword":{"value":"[parameters('environmentReference').deploymentPassword]"},
+		  "tenantDomain":{"value":"[parameters('environmentReference').tenantDomain]"}
         }
       }
     }

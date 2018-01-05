@@ -30,6 +30,18 @@
         "description": "WebDeploy package location."
       }
     },
+	"adAppClientId":{
+	 "type":"string"
+	},
+	"adAppClientPassword":{
+	"type":"securestring"
+	},
+	"tenantDomain":{
+	  "type":"string"
+	},
+	"webAppURL":{
+		"type":"string"
+	},
     "tags": {
       "type": "object"
     }
@@ -45,7 +57,25 @@
           "name": "[parameters('WebAppName')]",
           "serverFarmId": "[resourceId('Microsoft.Web/serverfarms/', parameters('hostingPlanName'))]",
           "siteConfig": {
-            "appSettings": []
+            "appSettings": [
+            {
+              "name": "adAppClientId",
+              "value": "[parameters('adAppClientId')]"
+
+            },
+            {
+              "name": "adAppClientPassword",
+              "value": "[parameters('adAppClientPassword')]"
+            },
+			{
+              "name": "tenantDomain",
+              "value": "[concat('https://login.microsoftonline.com/',parameters('tenantDomain'))]"
+            },
+			{
+              "name": "webAppURL",
+              "value": "[parameters('webAppURL')]"
+            }
+           ]
           }
         },
 

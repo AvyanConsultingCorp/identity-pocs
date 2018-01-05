@@ -27,6 +27,9 @@
     "adAppClientPassword": {
             "type": "securestring"
     },
+	"tenantDomain":{
+	  "type":"string"
+	},
     "tags": {
       "type": "object"
     }
@@ -78,7 +81,19 @@
           "DeployPackageURI": {
             "value": "[concat(parameters('_artifactsLocation'),'artifacts/scenario/1/webapp/IdentityScenarioOne.Webapp.zip')]"
           },
-          "tags": {
+		  "adAppClientId": {
+            "value": "[parameters('adAppClientId')]"
+          },
+		  "adAppClientPassword": {
+            "value": "[parameters('adAppClientPassword')]"
+          },
+		  "tenantDomain": {
+            "value": "[parameters('tenantDomain')]"
+          },
+		  "webAppURL":{
+			"value": "[concat('https://', parameters('uniquePrefix'), '-identity-webapp.azurewebsites.net/')]"
+		  },
+		  "tags": {
             "value": "[union(parameters('tags'), parameters('webApp').tags)]"
           }
         }

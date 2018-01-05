@@ -5,7 +5,7 @@
 @if (!Request.IsAuthenticated)
 {
     <div class="jumbotron">
-        <h1 style="text-align:center">Employee Managment System</h1>
+        <h1 style="text-align:center">NBME Employee Managment System</h1>
     </div>
 }
 else
@@ -16,6 +16,7 @@ else
         <tr><td>Username</td><td>@ViewBag.Username</td></tr>
         <tr><td>IP Address</td><td>@ViewBag.IpAdress</td></tr>
         <tr><td>Email</td><td>@ViewBag.Email</td></tr>
+        <tr><td>Auth token</td><td style="word-break: break-all;">@ViewBag.AuthToken</td></tr>
     </table>
     <br />
 }
