@@ -46,6 +46,7 @@ $passwordProfile = New-Object -TypeName Microsoft.Open.AzureAD.Model.PasswordPro
 $passwordProfile.Password = $deploymentPassword
 $passwordProfile.ForceChangePasswordNextLogin = $false
 $alluser = New-Object System.Collections.ArrayList
+$Disableduser = New-Object System.Collections.ArrayList
 $outputFile = New-Object System.Object
 
 ### Create AAD Users
@@ -61,6 +62,10 @@ foreach ($user in $actors) {
             $userObj = New-AzureADUser -DisplayName $user -PasswordProfile $passwordProfile `
             -UserPrincipalName $upn -AccountEnabled $true -MailNickName $user
             Write-Host -ForegroundColor Yellow "`n$upn created successfully."
+			if($user -eq 'Guest_User')
+			{
+				$Disableduser.Add($upn)
+			}
             if ($upn -eq ($user+'@'+$tenantDomain)) {
             #Get the Compay AD Admin ObjectID
             $companyAdminObjectId = Get-AzureADDirectoryRole | Where-Object {$_."DisplayName" -eq "Company Administrator"} | Select-Object ObjectId
@@ -88,7 +93,8 @@ foreach ($user in $actors) {
     }
 }
   $scriptRoot = Split-Path $MyInvocation.MyCommand.Path
-  $outputFile | Add-Member NoteProperty -Name "users" -Value $alluser
+  $outputFile | Add-Member NoteProperty -Name "AllUsers" -Value $alluser
+  $outputFile | Add-Member NoteProperty -Name "DisableUser" -Value $Disableduser
   $outputFile | Add-Member NoteProperty -Name "Password" -Value $deploymentPassword
   $jsonoutput = $outputFile | ConvertTo-Json
   $jsonoutput | Out-File $scriptRoot\users.txt
