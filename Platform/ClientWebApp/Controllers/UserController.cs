@@ -16,7 +16,7 @@ namespace ClientWebApp.Controllers
 
         public ActionResult Details(string authToken)
         {
-            return Redirect($"/details/{authToken}");
+            return View(authToken);
         }
     }
 }
