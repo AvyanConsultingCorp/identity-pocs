@@ -266,7 +266,7 @@ catch {
         
         if($globalAdminAdContext -ne $null){
            log "Connection to AzureAD was successful using $globalAdminUsername Account."  Green
-           $upn='Guest_User@'+$tenantDomain
+           $upn='Alice_ApplicationManager@'+$tenantDomain
            log "Trying to disable $upn using $globalAdminUsername Account."  Cyan
            Set-AzureADUser -ObjectID $upn -AccountEnabled $false
            #Set-MsolUser -UserPrincipalName $upn  -BlockCredential $true

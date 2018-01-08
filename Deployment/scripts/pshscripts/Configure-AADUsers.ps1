@@ -50,10 +50,10 @@ $Disableduser = New-Object System.Collections.ArrayList
 $outputFile = New-Object System.Object
 
 ### Create AAD Users
-$actors = @('Reed_SiteAdmin','Alice_ApplicationManager','Guest_User')
+$actors = @('Reed_SiteAdmin','Alice_ApplicationManager')
 foreach ($user in $actors) {
     $upn = $user + '@' + $tenantDomain
-	if($user -eq 'Guest_User')
+	if($user -eq 'Alice_ApplicationManager')
 	{
 		$Disableduser.Add($upn)
 	}
@@ -70,15 +70,15 @@ foreach ($user in $actors) {
             #Get the Compay AD Admin ObjectID
             $companyAdminObjectId = Get-AzureADDirectoryRole | Where-Object {$_."DisplayName" -eq "Company Administrator"} | Select-Object ObjectId
             Add-AzureADDirectoryRoleMember -ObjectId $companyAdminObjectId.ObjectId -RefObjectId $userObj.ObjectId			
-				if($user -eq 'Reed_SiteAdmin')
+				<#if($user -eq 'Reed_SiteAdmin')
 				{
                     New-AzureRmRoleAssignment -SignInName $upn -RoleDefinitionName 'Owner'			
 				}
 				else
 				{
-                                New-AzureRmRoleAssignment -SignInName $upn -RoleDefinitionName 'Contributor'			
+                    New-AzureRmRoleAssignment -SignInName $upn -RoleDefinitionName 'Contributor'			
 
-				}
+				}#>
 
 
             #Make the new user the company admin aka Global AD administrator
