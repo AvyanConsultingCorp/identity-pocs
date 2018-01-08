@@ -1,0 +1,75 @@
+
+{
+    "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+      "environmentReference": {
+        "type": "secureObject"
+      },
+      "frontEndTier1": {
+        "type": "secureObject"
+      },
+      "frontEndTier2": {
+        "type": "secureObject"
+      }
+      },
+    
+    "variables": {
+  
+  },
+    "resources": [
+      { 
+        "apiVersion": "2017-05-10", 
+        "name": "deploy-webapp-I", 
+        "type": "Microsoft.Resources/deployments",
+        "properties": { 
+           "mode": "Incremental",
+          "templateLink": {
+            "uri": "[concat(parameters('environmentReference')._artifactsLocation,'templates/buildingblocks/web/azuredeploy.json')]",
+            "contentVersion": "1.0.0.0"
+          },
+          "parameters": {
+            "_artifactsLocation": { "value": "[parameters('environmentReference')._artifactsLocation]" },
+            "_artifactsSasToken": { "value": "[parameters('environmentReference')._artifactsLocationSasToken]" },
+            "uniquePrefix": { "value": "[parameters('environmentReference').prefix]" },
+            "webApp": { "value": "[parameters('frontEndTier1').webApp]" },
+            "servicePlan": { "value": "client-appsPlan" },
+            "location": { "value": "[parameters('environmentReference').location]" },
+            "tags": { "value": "[parameters('environmentReference').tags]" },
+            "tenantId":{"value": "[parameters('environmentReference').tenantId]"},
+            "adAppClientId": {"value": "[parameters('environmentReference').adAppClientId]"},
+            "adAppClientPassword":{"value":"[parameters('environmentReference').deploymentPassword]"},
+            "tenantDomain":{"value":"[parameters('environmentReference').tenantDomain]"},
+            "packageURL":{"value":"artifacts/scenario/1/webapp/IdentityScenarioOne.Webapp.zip"}
+          }
+        }
+      },
+      { 
+        "apiVersion": "2017-05-10", 
+        "name": "deploy-webapp-II", 
+        "type": "Microsoft.Resources/deployments",
+        "properties": { 
+           "mode": "Incremental",
+          "templateLink": {
+            "uri": "[concat(parameters('environmentReference')._artifactsLocation,'templates/buildingblocks/web/azuredeploy.json')]",
+            "contentVersion": "1.0.0.0"
+          },
+          "parameters": {
+            "_artifactsLocation": { "value": "[parameters('environmentReference')._artifactsLocation]" },
+            "_artifactsSasToken": { "value": "[parameters('environmentReference')._artifactsLocationSasToken]" },
+            "uniquePrefix": { "value": "[parameters('environmentReference').prefix]" },
+            "webApp": { "value": "[parameters('frontEndTier2').webApp]" },
+            "servicePlan": { "value": "target-appsPlan" },
+            "location": { "value": "[parameters('environmentReference').location]" },
+            "tags": { "value": "[parameters('environmentReference').tags]" },
+            "tenantId":{"value": "[parameters('environmentReference').tenantId]"},
+            "adAppClientId": {"value": "[parameters('environmentReference').adAppClientId]"},
+            "adAppClientPassword":{"value":"[parameters('environmentReference').deploymentPassword]"},
+            "tenantDomain":{"value":"[parameters('environmentReference').tenantDomain]"},
+            "packageURL":{"value":"artifacts/scenario/2/webapp/IdentityScenarioTwo.Webapp.zip"}
+          }
+        }
+      }
+    ],
+    "outputs": {}
+  }

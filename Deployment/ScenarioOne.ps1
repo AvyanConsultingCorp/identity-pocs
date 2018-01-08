@@ -235,7 +235,7 @@ catch {
 		else{
             $adAppClientId = $identityAADApplication.ApplicationId.Guid.ToString()
             $identityAdApplicationObjectId = $identityAADApplication.ObjectId.Guid.ToString()
-            <#$identityAdServicePrincipalObjectId = (Get-AzureRmADServicePrincipal | ?  DispLayName -eq "$deploymentPrefix Identity Application").Id.Guid#>
+            #$identityAdServicePrincipalObjectId = (Get-AzureRmADServicePrincipal | ?  DispLayName -eq "$deploymentPrefix Identity Application").Id.Guid
             
             New-AzureRmADAppCredential -ObjectId $identityAADApplication.ObjectId.Guid -Password $secureDeploymentPassword
         }
@@ -256,7 +256,7 @@ catch {
        log $_.Exception.Message
         Break
     }
-    
+    #>
     try {        
         ### Connect to AzureAD using GlobalAdmin
         log "Connecting to AzureAD using Account($globalAdminUsername)"
@@ -296,7 +296,7 @@ catch {
         log "Initiating Identity POC Deployment." Cyan
         
         log "Invoke Background Job Deployment for Workload"
-        Invoke-ARMDeployment -subscriptionId $subscriptionId -resourceGroupPrefix $deploymentPrefix -location $location -identityAdApplicationClientId $adAppClientId -steps 1 -prerequisiteRefresh
+        Invoke-ARMDeployment -subscriptionId $subscriptionId -resourceGroupPrefix $deploymentPrefix -location $location -identityAdApplicationClientId $adAppClientId -steps 1 -prerequisiteRefresh -scenarioNumber 1
 
         # Pause Session for Background Job to Initiate.
         log "Waiting session for background job to initiate"

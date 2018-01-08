@@ -292,7 +292,11 @@ function Invoke-ARMDeployment {
         [Parameter(Mandatory = $false,
             ValueFromPipelineByPropertyName = $true,
             Position = 5)]
-        [switch]$prerequisiteRefresh
+        [switch]$prerequisiteRefresh,
+        [Parameter(Mandatory = $true,
+        ValueFromPipelineByPropertyName = $true,
+        Position = 6)]
+        [int[]]$scenarioNumber
     )
     $null = Save-AzureRmContext -Path $ProfilePath -Force
     try {
@@ -332,7 +336,7 @@ function Invoke-ARMDeployment {
             $Script:newDeploymentName = (($deploymentData[0], ($deployments.$step).name) -join '-').ToString().Replace('\','-')
             $Script:newDeploymentResourceGroupName = (($resourceGroupPrefix,($deployments.$step).rg,'rg' ) -join '-')
             Start-job -Name ("$step-create") -ScriptBlock $importSession -Debug `
-                -ArgumentList (($resourceGroupPrefix,($deployments.$step).rg,'rg' ) -join '-'), "$scriptroot\templates\scenarios\$(($deployments.$step).name)\azuredeploy.json", $deploymentData[1], (($deploymentData[0], ($deployments.$step).name) -join '-').ToString().Replace('\','-'), $scriptRoot, $subscriptionId
+                -ArgumentList (($resourceGroupPrefix,($deployments.$step).rg,'rg' ) -join '-'), "$scriptroot\templates\scenario-$scenarioNumber\$(($deployments.$step).name)\azuredeploy.json", $deploymentData[1], (($deploymentData[0], ($deployments.$step).name) -join '-').ToString().Replace('\','-'), $scriptRoot, $subscriptionId
         }
     }
     catch {
