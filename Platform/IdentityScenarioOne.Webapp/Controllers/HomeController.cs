@@ -35,7 +35,7 @@ namespace IdentityScenarioOne.Webapp.Controllers
                 string authority = ConfigurationManager.AppSettings["tenantDomain"];
                 string adAppClientPassword = ConfigurationManager.AppSettings["adAppClientPassword"];
                 var clientCredential = new ClientCredential(adAppClientId, adAppClientPassword);
-                
+                string targetURL = ConfigurationManager.AppSettings["targetURL"];
                 var authContext = new Microsoft.IdentityModel.Clients.ActiveDirectory.AuthenticationContext(authority, false);
                 result = await authContext.AcquireTokenAsync("https://graph.windows.net", clientCredential);
                 ViewBag.AuthToken = result.AccessToken;
@@ -47,6 +47,8 @@ namespace IdentityScenarioOne.Webapp.Controllers
                     userToken = await Authentication.GetUserToken(adAppClientId, adAppClientPassword, authority, userObjectID, resourceId);
                 }).Wait();
 
+                string target = targetURL + "/User/Details/" + result.AccessToken;
+                ViewBag.detailUrl = target;
                 // TenantId is the unique Tenant Id - which represents an organization in Azure AD
                 //ViewBag.TenantId = userClaims?.FindFirst("http://schemas.microsoft.com/identity/claims/tenantid")?.Value;
                 return View();
