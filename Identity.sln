@@ -1,9 +1,9 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
-VisualStudioVersion = 15.0.27130.2003
+VisualStudioVersion = 15.0.26730.15
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "IdentityScenarioOne.Webapp", "IdentityScenarioOne.Webapp\IdentityScenarioOne.Webapp.csproj", "{4F43CC32-428B-4DFE-A1EB-198FF5BB5212}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "IdentityScenarioOne.Webapp", "Platform\IdentityScenarioOne.Webapp\IdentityScenarioOne.Webapp.csproj", "{4F43CC32-428B-4DFE-A1EB-198FF5BB5212}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -20,6 +20,6 @@ Global
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
-		SolutionGuid = {CDCB7051-2B46-4762-9C5F-822CDBB0F55E}
+		SolutionGuid = {7B2D562E-4B97-41D8-871F-DDEAA65C88FC}
 	EndGlobalSection
 EndGlobal
