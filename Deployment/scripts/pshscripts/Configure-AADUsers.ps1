@@ -53,6 +53,10 @@ $outputFile = New-Object System.Object
 $actors = @('Reed_SiteAdmin','Alice_ApplicationManager','Guest_User')
 foreach ($user in $actors) {
     $upn = $user + '@' + $tenantDomain
+	if($user -eq 'Guest_User')
+	{
+		$Disableduser.Add($upn)
+	}
 	$alluser.Add($upn)
     Write-Host -ForegroundColor Yellow "`nChecking if $upn exists in AAD."
     if (!(Get-AzureADUser -SearchString $user ))
@@ -62,10 +66,6 @@ foreach ($user in $actors) {
             $userObj = New-AzureADUser -DisplayName $user -PasswordProfile $passwordProfile `
             -UserPrincipalName $upn -AccountEnabled $true -MailNickName $user
             Write-Host -ForegroundColor Yellow "`n$upn created successfully."
-			if($user -eq 'Guest_User')
-			{
-				$Disableduser.Add($upn)
-			}
             if ($upn -eq ($user+'@'+$tenantDomain)) {
             #Get the Compay AD Admin ObjectID
             $companyAdminObjectId = Get-AzureADDirectoryRole | Where-Object {$_."DisplayName" -eq "Company Administrator"} | Select-Object ObjectId
@@ -94,7 +94,7 @@ foreach ($user in $actors) {
 }
   $scriptRoot = Split-Path $MyInvocation.MyCommand.Path
   $outputFile | Add-Member NoteProperty -Name "AllUsers" -Value $alluser
-  $outputFile | Add-Member NoteProperty -Name "DisableUser" -Value $Disableduser
+  $outputFile | Add-Member NoteProperty -Name "Disable user" -Value $Disableduser
   $outputFile | Add-Member NoteProperty -Name "Password" -Value $deploymentPassword
   $jsonoutput = $outputFile | ConvertTo-Json
   $jsonoutput | Out-File $scriptRoot\users.txt
