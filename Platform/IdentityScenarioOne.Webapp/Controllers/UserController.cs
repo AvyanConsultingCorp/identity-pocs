@@ -21,7 +21,7 @@ namespace IdentityScenarioOne.Webapp.Controllers
 
         public ActionResult Details(string authToken)
         {
-            var s2sToken = Authentication.GetS2SToken(clientId, password, $"https://login.microsoft.com/{tenantName}");
+            //var s2sToken = Authentication.GetS2SToken(clientId, password, $"https://login.microsoft.com/{tenantName}");
             //Request.Headers.Add("Authorization", $"Bearer {s2sToken}");
             return Redirect($"{ServiceEndpoint}/user/details/{authToken}");
         }
