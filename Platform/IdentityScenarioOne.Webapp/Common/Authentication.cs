@@ -26,7 +26,7 @@ namespace IdentityScenarioOne.Webapp.Common
 
         public static async Task<string> GetUserToken(string clientId,string password,string authority,string userId,string resourceId)
         {
-            //string userObjectID = ClaimsPrincipal.Current.FindFirst("http://schemas.microsoft.com/identity/claims/objectidentifier").Value;
+            
             AuthenticationContext authContext = new AuthenticationContext(authority, new NaiveSessionCache(userId));
             ClientCredential credential = new ClientCredential(clientId, password);
             var result = await authContext.AcquireTokenSilentAsync(resourceId, credential, new UserIdentifier(userId, UserIdentifierType.UniqueId));

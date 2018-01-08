@@ -24,7 +24,7 @@ else
         @*<tr><td>Email</td><td>@ViewBag.Email</td></tr>*@
         <tr><td>Auth token</td><td style="word-break: break-all;">@ViewBag.AuthToken</td></tr>
     </table>
-    @Html.Hidden((string)ViewBag.s2sToken)
+    @Html.Hidden((string)@ViewBag.AuthToken)
     <br />
 
     <div>
