@@ -12,9 +12,11 @@ namespace IdentityScenarioOne.Webapp.Controllers
 {
     public class UserController : Controller
     {
+        
+
         public ActionResult Details(string authToken)
         {
-            return View(authToken);
+            return Redirect($"/details/{authToken}");
         }
     }
 }
