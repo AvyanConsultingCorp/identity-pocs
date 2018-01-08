@@ -38,26 +38,26 @@ $BSTR = [System.Runtime.InteropServices.Marshal]::SecureStringToBSTR($SecurePass
 $UnsecurePassword = [System.Runtime.InteropServices.Marshal]::PtrToStringAuto($BSTR)
 
 $credential = New-Object System.Management.Automation.PSCredential ($globalAdminUsername,$SecurePassword)
-Login-AzureRmAccount -Credential $credential
+Login-AzureRmAccount -Credential $credential -SubscriptionId $subscriptionId
 
 ### Connect AzureAD
 Connect-AzureAD -Credential $credential -TenantId $tenantId
 $passwordProfile = New-Object -TypeName Microsoft.Open.AzureAD.Model.PasswordProfile
 $passwordProfile.Password = $deploymentPassword
-$passwordProfile.ForceChangePasswordNextLogin = $false
+$passwordProfile.ForceChangePasswordNextlogin = $false
 $alluser = New-Object System.Collections.ArrayList
 $Disableduser = New-Object System.Collections.ArrayList
 $outputFile = New-Object System.Object
 
 ### Create AAD Users
-$actors = @('Reed_SiteAdmin','Alice_ApplicationManager','Guest_User')
+$actors = @('NBME_SiteAdmin','NBME_ApplicationManager','Disable_User')
 foreach ($user in $actors) {
     $upn = $user + '@' + $tenantDomain
-	if($user -eq 'Guest_User')
+	if($user -eq 'Disable_User')
 	{
-		$Disableduser.Add($upn)
+		[void]$Disableduser.Add($upn)
 	}
-	$alluser.Add($upn)
+	[void]$alluser.Add($upn)
     Write-Host -ForegroundColor Yellow "`nChecking if $upn exists in AAD."
     if (!(Get-AzureADUser -SearchString $user ))
     {
@@ -70,13 +70,13 @@ foreach ($user in $actors) {
             #Get the Compay AD Admin ObjectID
             $companyAdminObjectId = Get-AzureADDirectoryRole | Where-Object {$_."DisplayName" -eq "Company Administrator"} | Select-Object ObjectId
             Add-AzureADDirectoryRoleMember -ObjectId $companyAdminObjectId.ObjectId -RefObjectId $userObj.ObjectId			
-				if($user -eq 'Reed_SiteAdmin')
+				if($user -eq 'NBME_SiteAdmin')
 				{
                     New-AzureRmRoleAssignment -SignInName $upn -RoleDefinitionName 'Owner'			
 				}
 				else
 				{
-                                New-AzureRmRoleAssignment -SignInName $upn -RoleDefinitionName 'Contributor'			
+                    New-AzureRmRoleAssignment -SignInName $upn -RoleDefinitionName 'Contributor'			
 
 				}
 
@@ -92,6 +92,7 @@ foreach ($user in $actors) {
         }
     }
 }
+
   $scriptRoot = Split-Path $MyInvocation.MyCommand.Path
   $outputFile | Add-Member NoteProperty -Name "AllUsers" -Value $alluser
   $outputFile | Add-Member NoteProperty -Name "Disable user" -Value $Disableduser

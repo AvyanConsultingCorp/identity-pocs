@@ -261,12 +261,12 @@ catch {
         ### Connect to AzureAD using GlobalAdmin
         log "Connecting to AzureAD using Account($globalAdminUsername)"
         $credential = New-Object System.Management.Automation.PSCredential ($globalAdminUsername, $globalAdminPassword)
-        $globalAdminAdContext = Connect-AzureAD -Credential $credential -ErrorAction SilentlyContinue
+        $globalAdminAdContext = Connect-AzureAD -Credential $credential -ErrorAction SilentlyContinue -TenantId $tenantId
         #$globalAdminAdContext = Connect-MsolService -Credential $credential -ErrorAction SilentlyContinue
         
         if($globalAdminAdContext -ne $null){
            log "Connection to AzureAD was successful using $globalAdminUsername Account."  Green
-           $upn='Guest_User@'+$tenantDomain
+           $upn='Disable_User@'+$tenantDomain
            log "Trying to disable $upn using $globalAdminUsername Account."  Cyan
            Set-AzureADUser -ObjectID $upn -AccountEnabled $false
            #Set-MsolUser -UserPrincipalName $upn  -BlockCredential $true
