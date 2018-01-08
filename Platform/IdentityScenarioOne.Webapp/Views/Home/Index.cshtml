@@ -2,6 +2,12 @@
     ViewBag.Title = "Home Page";
 }
 
+<script>
+    function getUserDetails() {
+
+    }
+</script>
+
 @if (!Request.IsAuthenticated)
 {
     <div class="jumbotron">
@@ -18,6 +24,11 @@ else
         @*<tr><td>Email</td><td>@ViewBag.Email</td></tr>*@
         <tr><td>Auth token</td><td style="word-break: break-all;">@ViewBag.AuthToken</td></tr>
     </table>
+    @Html.Hidden((string)ViewBag.s2sToken)
     <br />
+
+    <div>
+        <a href="@ViewBag.detailUrl">Target App</a>
+    </div>
 }
 
