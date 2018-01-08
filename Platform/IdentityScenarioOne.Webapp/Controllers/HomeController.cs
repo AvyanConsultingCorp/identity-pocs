@@ -31,24 +31,25 @@ namespace IdentityScenarioOne.Webapp.Controllers
                 ViewBag.IpAdress = userClaims?.FindFirst("ipaddr")?.Value;
                 ViewBag.Email = userClaims?.FindFirst(System.IdentityModel.Claims.ClaimTypes.Email)?.Value;
                 ViewBag.Username = userClaims?.FindFirst(System.Security.Claims.ClaimTypes.Name)?.Value;
-                string adAppClientId = ConfigurationManager.AppSettings["adAppClientId"];
-                string authority = ConfigurationManager.AppSettings["tenantDomain"];
-                string adAppClientPassword = ConfigurationManager.AppSettings["adAppClientPassword"];
+                string adAppClientId = ConfigurationManager.AppSettings["ClientId"];
+                string authority = ConfigurationManager.AppSettings["TenantDomain"];
+                string adAppClientPassword = ConfigurationManager.AppSettings["ClientSecret"];
                 var clientCredential = new ClientCredential(adAppClientId, adAppClientPassword);
-                string targetURL = ConfigurationManager.AppSettings["targetURL"];
-                var authContext = new Microsoft.IdentityModel.Clients.ActiveDirectory.AuthenticationContext(authority, false);
-                result = await authContext.AcquireTokenAsync("https://graph.windows.net", clientCredential);
-                ViewBag.AuthToken = result.AccessToken;
+                string targetURL = ConfigurationManager.AppSettings["TargetEndpoint"];
+                //var authContext = new Microsoft.IdentityModel.Clients.ActiveDirectory.AuthenticationContext(authority, false);
+                //result = await authContext.AcquireTokenAsync("https://graph.windows.net", clientCredential);
+                //ViewBag.AuthToken = result.AccessToken;
                 string userObjectID = ClaimsPrincipal.Current.FindFirst("http://schemas.microsoft.com/identity/claims/objectidentifier").Value;
-                string resourceId = ConfigurationManager.AppSettings["resourceId"];
-                string userToken = null;
+                //string resourceId = ConfigurationManager.AppSettings["resourceId"];
+                string userToken = string.Empty;
                 Task.Run(
                 async () => {
-                    userToken = await Authentication.GetUserToken(adAppClientId, adAppClientPassword, authority, userObjectID, resourceId);
+                    userToken = await Authentication.GetUserToken(adAppClientId, adAppClientPassword, authority, userObjectID, targetURL);
                 }).Wait();
 
-                string target = targetURL + "/User/Details/" + result.AccessToken;
+                string target = targetURL + "/User/Details?" + userToken;
                 ViewBag.detailUrl = target;
+                ViewBag.AuthToken = userToken;
                 // TenantId is the unique Tenant Id - which represents an organization in Azure AD
                 //ViewBag.TenantId = userClaims?.FindFirst("http://schemas.microsoft.com/identity/claims/tenantid")?.Value;
                 return View();
