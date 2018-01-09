@@ -6,6 +6,8 @@ using System.Web.Mvc;
 
 namespace ClientWebApp.Controllers
 {
+    using Models;
+
     public class UserController : Controller
     {
         // GET: User
@@ -14,9 +16,12 @@ namespace ClientWebApp.Controllers
             return View();
         }
 
+        [Route("{authToken}")]
+        [HttpGet]
         public ActionResult Details(string authToken)
         {
-            return View(authToken);
+            var user = new NBMEUser { AuthToken = authToken };
+            return View(user);
         }
     }
 }
