@@ -1,7 +1,7 @@
 ﻿using System.Web;
 using System.Web.Optimization;
 
-namespace ClientWebApp
+namespace Scenario2.TargetWebApp
 {
     public class BundleConfig
     {

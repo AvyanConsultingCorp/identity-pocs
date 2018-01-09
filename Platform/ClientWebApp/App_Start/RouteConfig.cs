@@ -5,7 +5,7 @@ using System.Web;
 using System.Web.Mvc;
 using System.Web.Routing;
 
-namespace ClientWebApp
+namespace Scenario2.TargetWebApp
 {
     public class RouteConfig
     {

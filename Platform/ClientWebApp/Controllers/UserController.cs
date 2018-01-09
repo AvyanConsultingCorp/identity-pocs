@@ -4,7 +4,7 @@ using System.Linq;
 using System.Web;
 using System.Web.Mvc;
 
-namespace ClientWebApp.Controllers
+namespace Scenario2.TargetWebApp.Controllers
 {
     using Models;
     using Common;
@@ -25,8 +25,15 @@ namespace ClientWebApp.Controllers
         [HttpGet]
         public ActionResult Details(string authToken)
         {
-            JwtTokenValidator.Validate(authIssuer, authAudience, authToken);
-            return View(user);
+            TokenData tokenData = new TokenData();
+            if (JwtTokenValidator.Validate(authIssuer, authAudience, authToken,ref tokenData))
+            {
+                return View(tokenData);
+            }
+            else
+            {
+                return View("Error");
+            }
         }
     }
 }
