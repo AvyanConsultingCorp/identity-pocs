@@ -25,7 +25,7 @@ param
 )
 
 ### Manage Session Configuration
-$Host.UI.RawUI.WindowTitle = "NBME - Configure AAD Users"
+$Host.UI.RawUI.WindowTitle = "Identity Application"
 $ErrorActionPreference = 'Stop'
 $WarningPreference = 'Continue'
 Set-StrictMode -Version 3
@@ -97,5 +97,5 @@ foreach ($user in $actors) {
   $outputFile | Add-Member NoteProperty -Name "Disable user" -Value $Disableduser
   $outputFile | Add-Member NoteProperty -Name "Password" -Value $deploymentPassword
   $jsonoutput = $outputFile | ConvertTo-Json
-  $jsonoutput | Out-File $scriptRoot\users.txt
+  $jsonoutput | Out-File $scriptRoot\users.json
   

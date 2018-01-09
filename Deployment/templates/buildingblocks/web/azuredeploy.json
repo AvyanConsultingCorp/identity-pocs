@@ -46,7 +46,7 @@
   "resources": [
     {
       "apiVersion": "2017-05-10",
-      "name": "[concat(parameters('uniquePrefix'),'-',parameters('servicePlan'))]",
+      "name": "[toLower(concat(parameters('uniquePrefix'),'-',parameters('webApp').hostingPlanServiceName,'-appsvcplan'))]",
       "type": "Microsoft.Resources/deployments",
       "properties": {
         "mode": "Incremental",
@@ -68,7 +68,7 @@
       "name": "[concat(parameters('webApp').name)]",
       "type": "Microsoft.Resources/deployments",
       "dependsOn": [
-        "[concat(parameters('uniquePrefix'),'-',parameters('servicePlan'))]"
+        "[toLower(concat(parameters('uniquePrefix'),'-',parameters('webApp').hostingPlanServiceName,'-appsvcplan'))]"
       ],
       "properties": {
         "mode": "Incremental",
@@ -111,11 +111,11 @@
     },
 	{
       "apiVersion": "2017-05-10",
-      "name": "Webapp-Configuration",
+      "name": "[concat('-',parameters('webApp').serviceName,'-Configuration')]",
       "type": "Microsoft.Resources/deployments",
       "dependsOn": [
         "[concat(parameters('webApp').name)]",
-		"[concat(parameters('uniquePrefix'),'-',parameters('servicePlan'))]"
+		"[toLower(concat(parameters('uniquePrefix'),'-',parameters('webApp').hostingPlanServiceName,'-appsvcplan'))]"
       ],
       "properties": {
         "mode": "Incremental",

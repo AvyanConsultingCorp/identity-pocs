@@ -211,86 +211,42 @@ catch {
    log $_.Exception.Message
     Break
 }
-    Start-Sleep 10
-
-	$adAppClientId=""
-    # Create Azure Active Directory apps in default directory.
-    try{
-        $AppServiceURL = (("http://",$deploymentPrefix,"-identity-client-webapp.azurewebsites.net") -join '' )
-        $displayName = "$deploymentPrefix Identity Web Application"
-
-        if (!($identityAADApplication = Get-AzureRmADApplication -IdentifierUri $AppServiceURL)) {
-        log "Creating First AAD Application deployment"
-        $identityAADApplication = New-AzureRmADApplication -DisplayName $displayName -HomePage $AppServiceURL -IdentifierUris $AppServiceURL -Password $secureDeploymentPassword
-        $identityAdApplicationClientId = $identityAADApplication.ApplicationId.Guid
-		$adAppClientId = $identityAdApplicationClientId.ToString()
-        $identityAdApplicationObjectId = $identityAADApplication.ObjectId.Guid.ToString()
-        log "AAD Application  was successful. AppID is $identityAdApplicationClientId" Green
-        # Create a service principal for the AD Application and add a Reader role to the principal 
-        log "Creating Service principal for deployment"
-        $identityServicePrincipal = New-AzureRmADServicePrincipal -ApplicationId $identityAdApplicationClientId
-        Start-Sleep -s 30 # Wait till the ServicePrincipal is completely created. Usually takes 20+secs. Needed as Role assignment needs a fully deployed servicePrincipal
-        log "Service principal for deployment was successful - $($identityServicePrincipal.DisplayName)"
-        }
-		else{
-            $adAppClientId = $identityAADApplication.ApplicationId.Guid.ToString()
-            $identityAdApplicationObjectId = $identityAADApplication.ObjectId.Guid.ToString()
-            #$identityAdServicePrincipalObjectId = (Get-AzureRmADServicePrincipal | ?  DispLayName -eq "$deploymentPrefix Identity Application").Id.Guid
-            
-            New-AzureRmADAppCredential -ObjectId $identityAADApplication.ObjectId.Guid -Password $secureDeploymentPassword
-        }
-        #Connect to Azure AD.
-        Connect-AzureAD -TenantId $tenantId -Credential $credential
-        $replyUrl =  (($AppServiceURL,'/.auth/login/aad/callback') -join '')
-		Set-AzureADApplication -ObjectId $identityAdApplicationObjectId -ReplyUrls $replyUrl
-		$requiredResourceAccess = New-Object -TypeName "Microsoft.Open.AzureAD.Model.RequiredResourceAccess"
-        $resourceAccess1 = New-Object -TypeName "Microsoft.Open.AzureAD.Model.ResourceAccess" -ArgumentList "311a71cc-e848-46a1-bdf8-97ff7156d8e6","Scope"
-        $resourceAccess2 = New-Object -TypeName "Microsoft.Open.AzureAD.Model.ResourceAccess" -ArgumentList "5778995a-e1bf-45b8-affa-663a9f3f4d04","Role"
-        $requiredResourceAccess.ResourceAccess = $resourceAccess1,$resourceAccess2
-        $requiredResourceAccess.ResourceAppId = "00000002-0000-0000-c000-000000000000" #Resource App ID for Azure ActiveDirectory
-        Set-AzureADApplication -ObjectId $identityAdApplicationObjectId -RequiredResourceAccess $requiredResourceAccess       
-        
-    }
-    catch {
-        
-       log $_.Exception.Message
-        Break
-    }
 
     try{
         $targetAppServiceURL = (("http://",$deploymentPrefix,"-identity-target-webapp.azurewebsites.net") -join '' )
-        $targetAppDisplayName = "$deploymentPrefix Identity Web Application-II"
+        $targetAppDisplayName = "$deploymentPrefix-Identity-Target-Application"
 
-        if (!($identityTargetAADApplication = Get-AzureRmADApplication -IdentifierUri $targetAppServiceURL )) {
-        log "Creating Second AAD Application  deployment"
-        $identityTargetAADApplication = New-AzureRmADApplication -DisplayName $targetAppDisplayName -HomePage $targetAppServiceURL -IdentifierUris $targetAppServiceURL -Password $secureDeploymentPassword
-        $identityTargetAdApplicationClientId = $identityTargetAADApplication.ApplicationId.Guid
-	    $adAppTargetId = $identityAdApplicationClientId.ToString()
-        $identityTargetAdApplicationObjectId = $identityTargetAADApplication.ObjectId.Guid.ToString()
-        log "AAD Application  was successful. AppID is $identityTargetAdApplicationClientId" Green
+        if (!($targetAADApplication = Get-AzureRmADApplication -IdentifierUri $targetAppServiceURL )) {
+        log "Creating Target AAD Application."
+        $targetAADApplication = New-AzureRmADApplication -DisplayName $targetAppDisplayName -HomePage $targetAppServiceURL -IdentifierUris $targetAppServiceURL -Password $secureDeploymentPassword
+        $targetAdApplicationClientId = $targetAADApplication.ApplicationId.Guid
+	    $adAppTargetId = $targetAdApplicationClientId.ToString()
+        $targetAdApplicationObjectId = $targetAADApplication.ObjectId.Guid.ToString()
+        log "Target AAD Application created and AppID is $targetAdApplicationClientId" Green
         # Create a service principal for the AD Application and add a Reader role to the principal 
-        log "Creating Service principal for deployment"
-        $identityTargetServicePrincipal = New-AzureRmADServicePrincipal -ApplicationId $identityTargetAdApplicationClientId
+        log "Creating Service principal for Target AAD application."
+        $targetServicePrincipal = New-AzureRmADServicePrincipal -ApplicationId $targetAdApplicationClientId
         Start-Sleep -s 30 # Wait till the ServicePrincipal is completely created. Usually takes 20+secs. Needed as Role assignment needs a fully deployed servicePrincipal
-        log "Service principal for deployment was successful - $($identityTargetServicePrincipal.DisplayName)"
+        log "Service principal for Target AAD application created successfully as- $($targetServicePrincipal.DisplayName)"
         }
 		else{
-            $adAppTargetId = $identityAADApplication.ApplicationId.Guid.ToString()
-            $identityTargetAdApplicationObjectId = $identityAADApplication.ObjectId.Guid.ToString()
-            #$identityTargetAdServicePrincipalObjectId = (Get-AzureRmADServicePrincipal | ?  DispLayName -eq "$deploymentPrefix Identity Application").Id.Guid
-            
-            New-AzureRmADAppCredential -ObjectId $identityTargetAADApplication.ObjectId.Guid -Password $secureDeploymentPassword
+            $adAppTargetId = $targetAADApplication.ApplicationId.Guid.ToString()
+            $targetAdApplicationObjectId = $targetAADApplication.ObjectId.Guid.ToString()
+            #$identityTargetAdServicePrincipalObjectId = (Get-AzureRmADServicePrincipal | ?  DispLayName -eq "$deploymentPrefix Identity Application").Id.Guid            
+            New-AzureRmADAppCredential -ObjectId $targetAADApplication.ObjectId.Guid -Password $secureDeploymentPassword
         }
         #Connect to Azure AD.
         Connect-AzureAD -TenantId $tenantId -Credential $credential
-        $targetReplyUrl =  (($AppServiceURL,'/.auth/login/aad/callback') -join '')
-	    Set-AzureADApplication -ObjectId $identityTargetAdApplicationObjectId -ReplyUrls $targetReplyUrl
-	    $requiredResourceAccess = New-Object -TypeName "Microsoft.Open.AzureAD.Model.RequiredResourceAccess"
-        $resourceAccess1 = New-Object -TypeName "Microsoft.Open.AzureAD.Model.ResourceAccess" -ArgumentList "311a71cc-e848-46a1-bdf8-97ff7156d8e6","Scope"
-        $resourceAccess2 = New-Object -TypeName "Microsoft.Open.AzureAD.Model.ResourceAccess" -ArgumentList "5778995a-e1bf-45b8-affa-663a9f3f4d04","Role"
-        $requiredResourceAccess.ResourceAccess = $resourceAccess1,$resourceAccess2
-        $requiredResourceAccess.ResourceAppId = "00000002-0000-0000-c000-000000000000" #Resource App ID for Azure ActiveDirectory
-        Set-AzureADApplication -ObjectId $identityTargetAdApplicationObjectId -RequiredResourceAccess $requiredResourceAccess       
+        $targetReplyUrl =  (($targetAppServiceURL,'/.auth/login/aad/callback') -join '')
+	    Set-AzureADApplication -ObjectId $targetAdApplicationObjectId -ReplyUrls $targetReplyUrl
+        <#
+        $requiredResourceAccess2 = New-Object -TypeName "Microsoft.Open.AzureAD.Model.RequiredResourceAccess"
+        $resourceAccess2 = New-Object -TypeName "Microsoft.Open.AzureAD.Model.ResourceAccess" -ArgumentList "311a71cc-e848-46a1-bdf8-97ff7156d8e6","Scope"
+        #$resourceAccess2 = New-Object -TypeName "Microsoft.Open.AzureAD.Model.ResourceAccess" -ArgumentList "5778995a-e1bf-45b8-affa-663a9f3f4d04","Role"
+        $requiredResourceAccess2.ResourceAccess = $resourceAccess2
+        $requiredResourceAccess2.ResourceAppId = "00000002-0000-0000-c000-000000000000" #Resource App ID for Azure ActiveDirectory
+        Set-AzureADApplication -ObjectId $targetAdApplicationObjectId -RequiredResourceAccess $requiredResourceAccess2 
+        #>      
         
     }
     catch {
@@ -298,7 +254,49 @@ catch {
        log $_.Exception.Message
         Break
     }
-   
+    Start-Sleep 10
+	$adAppClientId=""
+    # Create Azure Active Directory apps in default directory.
+    try{
+        $clientAppServiceURL = (('http://',$deploymentPrefix,'-identity-client-webapp.azurewebsites.net') -join '' )
+        $clientAppDisplayName = "$deploymentPrefix-Identity-Client-Application"
+
+        if (!($clientAADApplication = Get-AzureRmADApplication -IdentifierUri $targetAppServiceURL )) {
+        log "Creating Client AAD Application."
+        $clientAADApplication = New-AzureRmADApplication -DisplayName $clientAppDisplayName -HomePage $targetAppServiceURL -IdentifierUris $targetAppServiceURL -Password $secureDeploymentPassword -AvailableToOtherTenants $true
+        $clientAdApplicationId = $clientAADApplication.ApplicationId.Guid
+		$adAppClientId = $clientAdApplicationId.ToString()
+        $clientAdApplicationObjectId = $clientAADApplication.ObjectId.Guid.ToString()
+        log "Client AAD Application created and AppID is $clientAdApplicationId" Green
+        # Create a service principal for the AD Application and add a Reader role to the principal 
+        log "Creating Service principal for Client AAD application."
+        $clientServicePrincipal = New-AzureRmADServicePrincipal -ApplicationId $clientAdApplicationId
+        Start-Sleep -s 30 # Wait till the ServicePrincipal is completely created. Usually takes 20+secs. Needed as Role assignment needs a fully deployed servicePrincipal
+        log "Service principal for Client AAD application created successfully as - $($clientServicePrincipal.DisplayName)"
+        }
+		else{
+            $adAppClientId = $clientAADApplication.ApplicationId.Guid.ToString()
+            $clientAdApplicationObjectId = $clientAADApplication.ObjectId.Guid.ToString()
+            #$identityAdServicePrincipalObjectId = (Get-AzureRmADServicePrincipal | ?  DispLayName -eq "$deploymentPrefix Identity Application").Id.Guid  
+            New-AzureRmADAppCredential -ObjectId $clientAADApplication.ObjectId.Guid -Password $secureDeploymentPassword
+        }
+        #Connect to Azure AD.
+        Connect-AzureAD -TenantId $tenantId -Credential $credential
+        $clientReplyUrl =  (($clientAppServiceURL,'/.auth/login/aad/callback') -join '')
+		Set-AzureADApplication -ObjectId $clientAdApplicationObjectId -ReplyUrls $clientReplyUrl
+		$requiredResourceAccess1 = New-Object -TypeName "Microsoft.Open.AzureAD.Model.RequiredResourceAccess"
+        $resourceAccess1 = New-Object -TypeName "Microsoft.Open.AzureAD.Model.ResourceAccess" -ArgumentList $adAppTargetId,"Scope"
+        #$resourceAccess2 = New-Object -TypeName "Microsoft.Open.AzureAD.Model.ResourceAccess" -ArgumentList "5778995a-e1bf-45b8-affa-663a9f3f4d04","Role"
+        $requiredResourceAccess1.ResourceAccess = $resourceAccess1
+        $requiredResourceAccess1.ResourceAppId = "00000002-0000-0000-c000-000000000000" #Resource App ID for Azure ActiveDirectory
+        Set-AzureADApplication -ObjectId $clientAdApplicationObjectId -RequiredResourceAccess $requiredResourceAccess1      
+        
+    }
+    catch {
+        
+       log $_.Exception.Message
+        Break
+    }   
     
     try {        
         ### Connect to AzureAD using GlobalAdmin
