@@ -12,21 +12,24 @@ namespace IdentityScenarioOne.Webapp.Common
         private static ReaderWriterLockSlim SessionLock = new ReaderWriterLockSlim(LockRecursionPolicy.NoRecursion);
         string UserObjectId = string.Empty;
         string CacheId = string.Empty;
+        private HttpContextBase httpContext;
 
-        public NaiveSessionCache(string userId)
+        public NaiveSessionCache(string userId, HttpContextBase context)
         {
             UserObjectId = userId;
             CacheId = UserObjectId + "_TokenCache";
 
             this.AfterAccess = AfterAccessNotification;
             this.BeforeAccess = BeforeAccessNotification;
+
+            this.httpContext = context;
             Load();
         }
 
         public void Load()
         {
             SessionLock.EnterReadLock();
-            this.Deserialize((byte[])HttpContext.Current.Session[CacheId]);
+            this.Deserialize((byte[])httpContext.Session[CacheId]);
             SessionLock.ExitReadLock();
         }
 

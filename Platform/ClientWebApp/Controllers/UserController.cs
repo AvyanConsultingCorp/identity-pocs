@@ -7,9 +7,14 @@ using System.Web.Mvc;
 namespace ClientWebApp.Controllers
 {
     using Models;
+    using Common;
 
     public class UserController : Controller
     {
+        const string authIssuer = "https://um-auth-client.azurewebsites.net"; // Client Domain
+
+        const string authAudience = "5e821316-b61b-4f0a-bbcd-0cdf1932be3f"; // Target Domain
+
         // GET: User
         public ActionResult Index()
         {
@@ -20,7 +25,7 @@ namespace ClientWebApp.Controllers
         [HttpGet]
         public ActionResult Details(string authToken)
         {
-            var user = new NBMEUser { AuthToken = authToken };
+            JwtTokenValidator.Validate(authIssuer, authAudience, authToken);
             return View(user);
         }
     }

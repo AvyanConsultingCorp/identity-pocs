@@ -9,12 +9,12 @@ namespace IdentityScenarioOne.Webapp.Common
 {
     public static class Authentication
     {
-        public static async Task<string> GetS2SToken(string clientId, string password,string authority)
+        public static async Task<string> GetS2SToken(string clientId, string password,string authority,string resourceId)
         {
             var clientCredential = new ClientCredential(clientId, password);
 
             var authContext = new AuthenticationContext(authority, false);
-            var result = await authContext.AcquireTokenAsync("https://graph.windows.net", clientCredential);
+            var result = await authContext.AcquireTokenAsync(resourceId, clientCredential);
 
             if (result == null)
             {
@@ -26,10 +26,10 @@ namespace IdentityScenarioOne.Webapp.Common
 
         public static async Task<string> GetUserToken(string clientId,string password,string authority,string userId,string resourceId)
         {
-            
             AuthenticationContext authContext = new AuthenticationContext(authority, false);
             ClientCredential credential = new ClientCredential(clientId, password);
-            var result = await authContext.AcquireTokenSilentAsync(resourceId, credential, new UserIdentifier(userId, UserIdentifierType.UniqueId));
+            var result = await authContext.AcquireTokenAsync(resourceId, credential);
+
 
             if (result == null)
             {

@@ -24,10 +24,10 @@ namespace IdentityScenarioOne.Webapp.Controllers
         static AuthenticationResult result;
 
         string adAppClientId = ConfigurationManager.AppSettings["ClientId"];
-        string authority = ConfigurationManager.AppSettings["TenantDomain"];
+        string tenant = $"{ConfigurationManager.AppSettings["TenantDomain"]}";
         string adAppClientPassword = ConfigurationManager.AppSettings["ClientSecret"];
         string targetURL = ConfigurationManager.AppSettings["TargetEndpoint"];
-
+        string targetAppId = ConfigurationManager.AppSettings["TenantAppId"];
         public HomeController()
         {
             CreateTelemetryClient();
@@ -70,11 +70,11 @@ namespace IdentityScenarioOne.Webapp.Controllers
                        string userObjectID = ClaimsPrincipal.Current.FindFirst("http://schemas.microsoft.com/identity/claims/objectidentifier").Value;
                        //string resourceId = ConfigurationManager.AppSettings["resourceId"];
 
-
-                       userToken = await Authentication.GetUserToken(adAppClientId, adAppClientPassword, authority, userObjectID, targetURL);
+                       var authority = $"https://login.microsoftonline.com/{tenant}";
+                       userToken = await Authentication.GetUserToken(adAppClientId, adAppClientPassword, authority, userObjectID, targetAppId);
                    }).Wait();
 
-                    string target = targetURL + "/User/Details?" + userToken;
+                    string target = targetURL + "/User/Details?authToken=" + userToken;
                     ViewBag.detailUrl = target;
                     ViewBag.AuthToken = userToken;
                     // TenantId is the unique Tenant Id - which represents an organization in Azure AD

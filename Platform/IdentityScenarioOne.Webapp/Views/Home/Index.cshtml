@@ -4,7 +4,7 @@
 
 <script>
     function getUserDetails() {
-
+        window.location.href = document.anchors["detailsUrl"].href;
     }
 </script>
 
@@ -28,7 +28,10 @@ else
     <br />
 
     <div>
-        <a href="@ViewBag.detailUrl">Target App</a>
+        
+         <a id="detailsUrl" href="@ViewBag.detailUrl" oncli>Target App</a>
+
+        
     </div>
 }
 
