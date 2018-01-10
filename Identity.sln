@@ -3,9 +3,9 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
 VisualStudioVersion = 15.0.26730.15
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "IdentityScenarioOne.Webapp", "Platform\IdentityScenarioOne.Webapp\IdentityScenarioOne.Webapp.csproj", "{4F43CC32-428B-4DFE-A1EB-198FF5BB5212}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Scenario2.ClientWebApp", "Platform\Scenario2.ClientWebApp\Scenario2.ClientWebApp.csproj", "{4F43CC32-428B-4DFE-A1EB-198FF5BB5212}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ClientWebApp", "Platform\ClientWebApp\ClientWebApp.csproj", "{2882FD67-F50E-4EFF-BDF6-2F9C652D514F}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Scenario2.TargetWebApp", "Platform\Scenario2.TargetWebApp\Scenario2.TargetWebApp.csproj", "{2882FD67-F50E-4EFF-BDF6-2F9C652D514F}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
