@@ -1,9 +1,7 @@
 ﻿using System;
 using System.Configuration;
-using System.Collections.Generic;
-using System.Linq;
-using System.Web;
 using System.Web.Mvc;
+using System.Web.Http;
 
 namespace Scenario2.TargetWebApp.Controllers
 {
@@ -22,10 +20,10 @@ namespace Scenario2.TargetWebApp.Controllers
             return View();
         }
 
-        [Route("{authToken}")]
-        [HttpGet]
-        public ActionResult Details(string authToken)
-        {
+        //[Route("{authToken}")]
+        [System.Web.Mvc.HttpPost]
+        public ActionResult Details([FromBody]string authToken)
+        {           
             TokenData tokenData = new TokenData();
             if (JwtTokenValidator.Validate(authIssuer, authAudience, authToken,ref tokenData))
             {

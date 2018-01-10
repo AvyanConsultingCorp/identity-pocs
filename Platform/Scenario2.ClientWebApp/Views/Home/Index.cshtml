@@ -29,8 +29,12 @@ else
 
     <div>
         
-         <a id="detailsUrl" href="@ViewBag.detailUrl" oncli>Target App</a>
+         <a id="detailsUrl" href="@ViewBag.detailUrl">Target App</a>
 
+        <form action="@ViewBag.appUrl" method="post">
+            <input type="hidden" value="@ViewBag.AuthToken"/>
+            <input type="submit" value="Target App Post"/>
+        </form>
         
     </div>
 }

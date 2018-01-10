@@ -76,6 +76,7 @@ namespace Scenario2.TargetWebApp.Controllers
 
                     string target = targetURL + "/User/Details?authToken=" + userToken;
                     ViewBag.detailUrl = target;
+                    ViewBag.appUrl = targetURL+ "/User/Details";
                     ViewBag.AuthToken = userToken;
                     // TenantId is the unique Tenant Id - which represents an organization in Azure AD
                     //ViewBag.TenantId = userClaims?.FindFirst("http://schemas.microsoft.com/identity/claims/tenantid")?.Value;
