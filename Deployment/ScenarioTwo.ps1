@@ -250,17 +250,17 @@ catch {
     # Create Azure Active Directory apps in default directory.
     try{
         $AppServiceURL = (("http://",$deploymentPrefix,"-identity-client-webapp.azurewebsites.net") -join '' )
-        $displayName = "$deploymentPrefix Identity Client Application"
+        $displayName = "$deploymentPrefix-Identity-Client-Application"
 
         if (!($identityAADApplication = Get-AzureRmADApplication -IdentifierUri $AppServiceURL)) {
-        log "Creating CLient AD Application."
+        log "Creating Client AD Application."
         $identityAADApplication = New-AzureRmADApplication -DisplayName $displayName -HomePage $AppServiceURL -IdentifierUris $AppServiceURL -Password $secureDeploymentPassword
         $identityAdApplicationClientId = $identityAADApplication.ApplicationId.Guid
 		$adAppClientId = $identityAdApplicationClientId.ToString()
         $identityAdApplicationObjectId = $identityAADApplication.ObjectId.Guid.ToString()
         log "Client AAD Application created and AppID is $identityAdApplicationClientId" Green
         # Create a service principal for the AD Application and add a Reader role to the principal 
-        log "Creating Service principal for deployment"
+        log "Creating Service principal for Client Ad Applicationication"
         $identityServicePrincipal = New-AzureRmADServicePrincipal -ApplicationId $identityAdApplicationClientId
         Start-Sleep -s 30 # Wait till the ServicePrincipal is completely created. Usually takes 20+secs. Needed as Role assignment needs a fully deployed servicePrincipal
         log "Service principal for deployment was successful - $($identityServicePrincipal.DisplayName)" 
@@ -295,10 +295,9 @@ catch {
         
         if($globalAdminAdContext -ne $null){
            log "Connection to AzureAD was successful using $globalAdminUsername Account."  Green
-           $upn='Alice_ApplicationManager@'+$tenantDomain
+           $upn='Disable_User@'+$tenantDomain
            log "Trying to disable $upn using $globalAdminUsername Account."  Cyan
            Set-AzureADUser -ObjectID $upn -AccountEnabled $false
-           #Set-MsolUser -UserPrincipalName $upn  -BlockCredential $true
            log "Disabled $upn using $globalAdminUsername Account."  Green
     
         }
