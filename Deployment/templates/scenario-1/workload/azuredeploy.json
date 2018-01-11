@@ -32,7 +32,6 @@
           "_artifactsSasToken": { "value": "[parameters('environmentReference')._artifactsLocationSasToken]" },
           "uniquePrefix": { "value": "[parameters('environmentReference').prefix]" },
           "webApp": { "value": "[parameters('frontEndTier1').webApp]" },
-
           "location": { "value": "[parameters('environmentReference').location]" },
           "tags": { "value": "[parameters('environmentReference').tags]" },
 		      "tenantId":{"value": "[parameters('environmentReference').tenantId]"},

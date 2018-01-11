@@ -392,7 +392,6 @@ function Get-DeploymentData($hash) {
     $localIP = Invoke-RestMethod http://ipinfo.io/json | Select-Object -exp ip
     $parametersData = Get-Content "$scriptroot\templates\scenario$scenarioNumber.parameters.json" | ConvertFrom-Json
     $parametersData.parameters.environmentReference.value.prefix = $resourceGroupPrefix
-    $parametersData.parameters.environmentReference.value.uniquePrefix=$deploymentPrefix
     $parametersData.parameters.environmentReference.value._artifactsLocation = 'https://{0}.blob.core.windows.net/' -f $hash
     $parametersData.parameters.environmentReference.value.adAppClientId = $identityAdApplicationClientId
     $parametersData.parameters.environmentReference.value.deploymentPassword = $deploymentPassword
