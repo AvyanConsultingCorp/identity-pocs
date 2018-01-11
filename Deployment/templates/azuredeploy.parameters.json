@@ -14,7 +14,8 @@
         "tenantId": "auto-update",
         "adAppClientId": "auto-update",
         "deploymentPassword": "auto-update",
-        "tenantDomain": "auto-update"
+        "tenantDomain": "auto-update",
+        "targetAdApplicationId":"auto-update"
       }
     },
     "frontEndTier1": {

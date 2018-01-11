@@ -289,14 +289,19 @@ function Invoke-ARMDeployment {
         ValueFromPipelineByPropertyName = $true,
         Position = 4)]
         [int[]]$steps,
-        [Parameter(Mandatory = $false,
-            ValueFromPipelineByPropertyName = $true,
-            Position = 5)]
-        [switch]$prerequisiteRefresh,
         [Parameter(Mandatory = $true,
         ValueFromPipelineByPropertyName = $true,
-        Position = 6)]
-        [int[]]$scenarioNumber
+        Position = 5)]
+        [int]$scenarioNumber,
+        [Parameter(Mandatory=$false,
+        ValueFromPipelineByPropertyName=$true,
+        Position=6)]
+        [string]$targetAdApplicationId,
+        [Parameter(Mandatory = $false,
+            ValueFromPipelineByPropertyName = $true,
+            Position = 7)]
+        [switch]$prerequisiteRefresh
+        
     )
     $null = Save-AzureRmContext -Path $ProfilePath -Force
     try {

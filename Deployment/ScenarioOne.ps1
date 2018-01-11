@@ -296,7 +296,7 @@ catch {
         log "Initiating Identity POC Deployment." Cyan
         
         log "Invoke Background Job Deployment for Workload"
-        Invoke-ARMDeployment -subscriptionId $subscriptionId -resourceGroupPrefix $deploymentPrefix -location $location -identityAdApplicationClientId $adAppClientId -steps 1 -prerequisiteRefresh -scenarioNumber 1
+        Invoke-ARMDeployment -subscriptionId $subscriptionId -resourceGroupPrefix $deploymentPrefix -location $location -identityAdApplicationClientId $adAppClientId -steps 1 -scenarioNumber 1 -prerequisiteRefresh
 
         # Pause Session for Background Job to Initiate.
         log "Waiting session for background job to initiate"
