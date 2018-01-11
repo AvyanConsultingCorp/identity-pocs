@@ -5,10 +5,7 @@
     "environmentReference": {
       "type": "secureObject"
     },
-    "frontEndTier1": {
-      "type": "secureObject"
-    },
-    "frontEndTier2": {
+   "frontEndTier": {
       "type": "secureObject"
     }
     },
@@ -17,12 +14,12 @@
 
 },
   "resources": [
-    { 
-      "apiVersion": "2017-05-10", 
-      "name": "deploy-webapp-I", 
+    {
+      "apiVersion": "2017-05-10",
+      "name": "deploy-webapp-I",
       "type": "Microsoft.Resources/deployments",
-      "properties": { 
-         "mode": "Incremental",
+      "properties": {
+        "mode": "Incremental",
         "templateLink": {
           "uri": "[concat(parameters('environmentReference')._artifactsLocation,'templates/buildingblocks/web/scenario.one.json')]",
           "contentVersion": "1.0.0.0"
@@ -31,13 +28,13 @@
           "_artifactsLocation": { "value": "[parameters('environmentReference')._artifactsLocation]" },
           "_artifactsSasToken": { "value": "[parameters('environmentReference')._artifactsLocationSasToken]" },
           "uniquePrefix": { "value": "[parameters('environmentReference').prefix]" },
-          "webApp": { "value": "[parameters('frontEndTier1').webApp]" },
+          "webApp": { "value": "[parameters('frontEndTier').webApp]" },
           "location": { "value": "[parameters('environmentReference').location]" },
           "tags": { "value": "[parameters('environmentReference').tags]" },
-		      "tenantId":{"value": "[parameters('environmentReference').tenantId]"},
-		      "adAppClientId": {"value": "[parameters('environmentReference').adAppClientId]"},
-		      "adAppClientPassword":{"value":"[parameters('environmentReference').deploymentPassword]"},
-          "tenantDomain":{"value":"[parameters('environmentReference').tenantDomain]"}
+          "tenantId": { "value": "[parameters('environmentReference').tenantId]" },
+          "adAppClientId": { "value": "[parameters('environmentReference').adAppClientId]" },
+          "adAppClientPassword": { "value": "[parameters('environmentReference').deploymentPassword]" },
+          "tenantDomain": { "value": "[parameters('environmentReference').tenantDomain]" }
         }
       }
     }
