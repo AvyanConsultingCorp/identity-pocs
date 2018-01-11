@@ -38,8 +38,7 @@
 		      "tenantId":{"value": "[parameters('environmentReference').tenantId]"},
 		      "adAppClientId": {"value": "[parameters('environmentReference').adAppClientId]"},
 		      "adAppClientPassword":{"value":"[parameters('environmentReference').deploymentPassword]"},
-          "tenantDomain":{"value":"[parameters('environmentReference').tenantDomain]"},
-          "packageURL":{"value":"[concat(parameters('environmentReference')._artifactsLocation,'artifacts/scenario/1/webapp/IdentityScenarioOne.Webapp.zip')"}
+          "tenantDomain":{"value":"[parameters('environmentReference').tenantDomain]"}
         }
       }
     }

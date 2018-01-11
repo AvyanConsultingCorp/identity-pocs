@@ -69,7 +69,10 @@
     },
     {
         "name": "[variables('WebAppName')]",
-        "type": "Microsoft.Web/sites",
+      "type": "Microsoft.Web/sites",
+      "dependsOn": [
+        "[concat(parameters('webApp').name,'-webapp-appsvcplan')]"
+      ],
         "location": "[parameters('location')]",
         "apiVersion": "2015-08-01",
         "tags": "[parameters('tags')]",
