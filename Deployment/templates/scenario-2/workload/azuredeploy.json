@@ -57,10 +57,10 @@
             "webApp": { "value": "[parameters('frontEndTier1').webApp]" },
             "location": { "value": "[parameters('environmentReference').location]" },
             "tags": { "value": "[parameters('environmentReference').tags]" },
-            "tenantId":{"value":"parameters('environmentReference').tenantId"},
+            "tenantId":{"value":"[parameters('environmentReference').tenantId]"},
             "targetAdAppId":{"value": "[parameters('environmentReference').targetAdApplicationId]"},
-            "adAppClientId": {"value": "[parameters('environmentReference').adAppClientId]"},
-            "adAppClientPassword":{"value":"[parameters('environmentReference').deploymentPassword]"},
+            "adAppId": {"value": "[parameters('environmentReference').adAppClientId]"},
+            "adAppSecret":{"value":"[parameters('environmentReference').deploymentPassword]"},
             "tenantDomain":{"value":"[parameters('environmentReference').tenantDomain]"},
             "targetWebAppUrl":{"value":"[toLower(concat('https://',parameters('environmentReference').prefix,'-',variables('targetWebAppName'),'-',variables('serviceName'),'.azurewebsites.net'))]"},
             "packageURL":{"value":"[concat(parameters('environmentReference')._artifactsLocation,'artifacts/scenario/2/webapp/Scenario2.ClientWebApp.zip')]"}

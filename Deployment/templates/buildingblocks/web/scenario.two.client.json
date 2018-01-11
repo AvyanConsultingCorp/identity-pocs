@@ -44,7 +44,8 @@
     }
   },
   "variables": {
-    "webAppName":"[concat(parameters('uniquePrefix'),'-',parameters('webApp').name,'-',parameters('webApp').serviceName,'-webapp')]"
+    "webAppName":"[concat(parameters('uniquePrefix'),'-',parameters('webApp').name,'-',parameters('webApp').serviceName,'-webapp')]",
+    "appHostingPlanName":"[toLower(concat(parameters('uniquePrefix'),'-',parameters('webApp').hostingPlanServiceName,'-appsvcplan'))]"
   },
   "resources": [
     {
@@ -58,7 +59,7 @@
         },
         "parameters": {
           "hostingPlanName": {
-            "value": "[toLower(concat(parameters('uniquePrefix'),'-',parameters('webApp').hostingPlanServiceName,'-appsvcplan'))]"
+            "value": "[variables('appHostingPlanName')]"
           },
           "tags": {
             "value": "[union(parameters('tags'), parameters('webApp').tags)]"
@@ -74,21 +75,21 @@
         "tags": "[parameters('tags')]",
         "properties": {
           "name": "[variables('WebAppName')]",
-          "serverFarmId": "[resourceId('Microsoft.Web/serverfarms/', parameters('webApp').hostingPlanServiceName)]",
+          "serverFarmId": "[resourceId('Microsoft.Web/serverfarms/', variables('appHostingPlanName'))]",
           "siteConfig": {
             "appSettings": [
             {
               "name": "ADAppClientId",
-              "value": "[parameters('adAppClientId')]"
+              "value": "[parameters('adAppId')]"
 
             },
             {
               "name": "ADAppSecret",
-              "value": "[parameters('adAppClientPassword')]"
+              "value": "[parameters('adAppSecret')]"
             },
 			      {
               "name": "TenantDomain",
-              "value": "[parameters('tenantDomain'))]"
+              "value": "[parameters('tenantDomain')]"
             },
 			      {
               "name": "TargetWebAppURL",
@@ -100,11 +101,11 @@
             },
             {
               "name": "WebAppURL",
-              "value": "concat('https://', variables('webAppName'),'.azurewebsites.net')]"
+              "value": "[concat('https://', variables('webAppName'),'.azurewebsites.net')]"
             },
             {
               "name": "TenantId",
-              "value": "[parameters('tenantID')]"
+              "value": "[parameters('tenantId')]"
             }
          ]
         }
@@ -132,8 +133,8 @@
       "name": "Webapp-Configuration",
       "type": "Microsoft.Resources/deployments",
       "dependsOn": [
-        "[concat(parameters('webApp').name)]",
-		      "webapp-appsvcplan"
+        "[variables('WebAppName')]",
+		      "[concat(parameters('webApp').name,'-webapp-appsvcplan')]"
       ],
       "properties": {
         "mode": "Incremental",
@@ -142,7 +143,7 @@
         },
         "parameters": {
           "adAppClientId": {
-            "value": "[parameters('adAppClientId')]"
+            "value": "[parameters('adAppId')]"
           },
           "WebAppName": {
             "value": "[variables('webAppName')]"
@@ -154,7 +155,7 @@
             "value": "[parameters('tenantId')]"
           },
 		      "adAppClientPassword": {
-            "value": "[parameters('adAppClientPassword')]"
+            "value": "[parameters('adAppSecret')]"
           },
 		  "webAppURL":{
 			"value": "[concat('https://', variables('webAppName'),'.azurewebsites.net/.auth/login/aad/callback')]"

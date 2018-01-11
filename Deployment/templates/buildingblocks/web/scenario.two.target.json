@@ -29,7 +29,8 @@
     }
   },
   "variables": {
-    "webAppName":"[concat(parameters('uniquePrefix'),'-',parameters('webApp').name,'-',parameters('webApp').serviceName,'-webapp')]"
+    "webAppName":"[concat(parameters('uniquePrefix'),'-',parameters('webApp').name,'-',parameters('webApp').serviceName,'-webapp')]",
+    "appHostingPlanName":"[toLower(concat(parameters('uniquePrefix'),'-',parameters('webApp').hostingPlanServiceName,'-appsvcplan'))]"
   },
   "resources": [
     {
@@ -43,7 +44,7 @@
         },
         "parameters": {
           "hostingPlanName": {
-            "value": "[toLower(concat(parameters('uniquePrefix'),'-',parameters('webApp').hostingPlanServiceName,'-appsvcplan'))]"
+            "value": "[variables('appHostingPlanName')]"
           },
           "tags": {
             "value": "[union(parameters('tags'), parameters('webApp').tags)]"
@@ -54,17 +55,20 @@
     {
         "name": "[variables('WebAppName')]",
         "type": "Microsoft.Web/sites",
+        "dependsOn": [
+          "[concat(parameters('webApp').name,'-webapp-appsvcplan')]"
+        ],
         "location": "[parameters('location')]",
         "apiVersion": "2015-08-01",
         "tags": "[parameters('tags')]",
         "properties": {
           "name": "[variables('WebAppName')]",
-          "serverFarmId": "[resourceId('Microsoft.Web/serverfarms/', parameters('hostingPlanName'))]",
+          "serverFarmId": "[resourceId('Microsoft.Web/serverfarms/', variables('appHostingPlanName'))]",
           "siteConfig": {
             "appSettings": [
             {
               "name": "ADAppClientId",
-              "value": "[parameters('adAppClientId')]"
+              "value": "[parameters('adAppId')]"
             }
          ]
         }

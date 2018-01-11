@@ -209,7 +209,7 @@ catch {
 }
 
     try{
-        $targetAppServiceURL = (("http://",$deploymentPrefix,"-webfred-identity-webapp.azurewebsites.net") -join '' )
+        $targetAppServiceURL = (("https://",$deploymentPrefix,"-webfred-identity-webapp.azurewebsites.net") -join '' )
         $targetAppDisplayName = "$deploymentPrefix-Identity-Target-Application"
 
         if (!($targetAADApplication = Get-AzureRmADApplication -IdentifierUri $targetAppServiceURL )) {
@@ -245,7 +245,7 @@ catch {
     $adAppClientId=""
     # Create Azure Active Directory apps in default directory.
     try{
-        $AppServiceURL = (("http://",$deploymentPrefix,"student-identity-webapp.azurewebsites.net") -join '' )
+        $AppServiceURL = (("https://",$deploymentPrefix,"-student-identity-webapp.azurewebsites.net") -join '' )
         $displayName = "$deploymentPrefix-Identity-Client-Application"
 
         if (!($identityAADApplication = Get-AzureRmADApplication -IdentifierUri $AppServiceURL)) {
