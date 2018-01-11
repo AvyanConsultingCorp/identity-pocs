@@ -13,7 +13,7 @@ namespace Scenario2.TargetWebApp.Common
     {
 
         
-        public static bool Validate(string authIssuer,string authAudience, string token,ref TokenData tokenData)
+        public static bool Validate(string authAudience, string token,ref TokenData tokenData)
         {
             string stsDiscoveryEndpoint = "https://login.microsoftonline.com/common/v2.0/.well-known/openid-configuration";
 
@@ -28,7 +28,6 @@ namespace Scenario2.TargetWebApp.Common
                 ValidateIssuer = false,
                 ValidateLifetime = false,
                 ValidAudience = authAudience,
-                ValidIssuer = authIssuer,
                 IssuerSigningKeys = config.SigningKeys
             };
 
@@ -46,9 +45,12 @@ namespace Scenario2.TargetWebApp.Common
                     data.Add(claim.Type, claim.Value);
                 }
 
+                tokenData.AuthenticationType = result.Identity.AuthenticationType;
+                tokenData.ApplicationId = data["appid"];
                 tokenData.Issuer = jwt.Issuer;
                 tokenData.ValidFrom = jwt.ValidFrom;
                 tokenData.ValidTo = jwt.ValidTo;
+                tokenData.ExpiryDate = new DateTime(Convert.ToInt64(data["exp"]));
                 return true;
             }
             catch(Exception ex)

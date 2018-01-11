@@ -24,7 +24,7 @@ namespace Scenario2.TargetWebApp.Common
             return result.AccessToken;
         }
 
-        public static async Task<string> GetUserToken(string clientId,string password,string authority,string userId,string resourceId)
+        public static async Task<string> GetUserToken(string clientId,string password,string authority,string resourceId)
         {
             AuthenticationContext authContext = new AuthenticationContext(authority, false);
             ClientCredential credential = new ClientCredential(clientId, password);
