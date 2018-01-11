@@ -265,7 +265,7 @@ if ($clearDeployment) {
                 {
                     log "Removing Azure AD Application - $deploymentPrefix Identity Web Application" Yellow -displaywithouttimestamp
                     Get-AzureRmADApplication -DisplayNameStartWith "$deploymentPrefix Identity Web Application" | Remove-AzureRmADApplication -Force
-                    log "Azure AD Application - $deploymentPrefix Azure HIPAA LOS Sample removed successfully" Yellow -displaywithouttimestamp
+                    log "Azure AD Application - $deploymentPrefix Identity Web Application removed successfully" Yellow -displaywithouttimestamp
                 }
                 log "Resources cleared successfully." Magenta
             }
