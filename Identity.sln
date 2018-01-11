@@ -1,11 +1,13 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
-VisualStudioVersion = 15.0.26730.15
+VisualStudioVersion = 15.0.27130.2003
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "IdentityScenarioOne.Webapp", "Platform\IdentityScenarioOne.Webapp\IdentityScenarioOne.Webapp.csproj", "{4F43CC32-428B-4DFE-A1EB-198FF5BB5212}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ClientWebApp", "Platform\ClientWebApp\ClientWebApp.csproj", "{2882FD67-F50E-4EFF-BDF6-2F9C652D514F}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ScenarioOne.WebApp", "Platform\ScenarioOne.WebApp\ScenarioOne.WebApp.csproj", "{F1838FB5-0326-4CA7-ABD5-13B154E550D3}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -21,6 +23,10 @@ Global
 		{2882FD67-F50E-4EFF-BDF6-2F9C652D514F}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{2882FD67-F50E-4EFF-BDF6-2F9C652D514F}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{2882FD67-F50E-4EFF-BDF6-2F9C652D514F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F1838FB5-0326-4CA7-ABD5-13B154E550D3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F1838FB5-0326-4CA7-ABD5-13B154E550D3}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F1838FB5-0326-4CA7-ABD5-13B154E550D3}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F1838FB5-0326-4CA7-ABD5-13B154E550D3}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

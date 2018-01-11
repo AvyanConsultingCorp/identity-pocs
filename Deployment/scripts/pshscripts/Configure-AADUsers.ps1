@@ -50,10 +50,10 @@ $Disableduser = New-Object System.Collections.ArrayList
 $outputFile = New-Object System.Object
 
 ### Create AAD Users
-$actors = @('NBME_SiteAdmin','NBME_ApplicationManager','Disable_User')
+$actors = @('NBME_SiteAdmin','NBME_ApplicationManager','NBME_Disable')
 foreach ($user in $actors) {
     $upn = $user + '@' + $tenantDomain
-	if($user -eq 'Disable_User')
+	if($user -eq 'NBME_Disable')
 	{
 		[void]$Disableduser.Add($upn)
 	}
@@ -98,5 +98,7 @@ foreach ($user in $actors) {
   $outputFile | Add-Member NoteProperty -Name "Disable user" -Value $Disableduser
   $outputFile | Add-Member NoteProperty -Name "Password" -Value $deploymentPassword
   $jsonoutput = $outputFile | ConvertTo-Json
-  $jsonoutput | Out-File $scriptRoot\users.txt
+  $scriptpath = split-path $scriptRoot
+  $outputpath = split-path $scriptpath 
+  $jsonoutput | Out-File $outputpath\output\users.txt
   

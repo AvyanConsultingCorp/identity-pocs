@@ -79,7 +79,7 @@
             "value": "[parameters('location')]"
           },
           "DeployPackageURI": {
-            "value": "[concat(parameters('_artifactsLocation'),'artifacts/scenario/1/webapp/IdentityScenarioOne.Webapp.zip')]"
+            "value": "[concat(parameters('_artifactsLocation'),'artifacts/scenario/1/webapp/ScenarioOne.WebApp.zip')]"
           },
 		  "tenantId": {
             "value": "[parameters('tenantId')]"

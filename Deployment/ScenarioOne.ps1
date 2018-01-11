@@ -85,17 +85,12 @@ param
     [Parameter(Mandatory = $true,
     ParameterSetName = "InstallModules")]
     [switch]$installModules,
+	
     #Switch to cleanup deployment resources from the subscription.
     [Parameter(Mandatory = $true, 
     ParameterSetName = "CleanUp", 
     Position = 9)]
-    [switch]$clearDeployment,
-
-    #Switch to set password policy to expire after 60 days at domain level.
-    [Parameter(Mandatory = $false,
-    ParameterSetName = "Deployment",
-    Position = 10)]
-    [switch]$enableADDomainPasswordPolicy
+    [switch]$clearDeployment
 
 )
 
@@ -148,6 +143,140 @@ Else{
 }
 
 if ($clearDeployment) {
+    try {
+        log "Looking for Resources to Delete.." Magenta
+        log "List of deployment resources for deletion" -displaywithouttimestamp
+
+        #List The Resource Group
+        $resourceGroupList =@(
+            (($deploymentPrefix, 'artifacts', 'rg') -join '-'),
+            (($deploymentPrefix, 'workload', 'rg') -join '-')
+        )
+        log "Resource Groups: " Cyan -displaywithouttimestamp
+        $resourceGroupList | ForEach-Object {
+            $resourceGroupName = $_
+            $resourceGroupObj = Get-AzureRmResourceGroup -Name $resourceGroupName -ErrorAction SilentlyContinue
+            if($resourceGroupObj-ne $null)
+            {
+                log "$($resourceGroupObj.ResourceGroupName)." -displaywithouttimestamp -nonewline
+                $rgCount = 1 
+            }
+            else 
+            {
+                $rgCount = 0
+                log "$resourceGroupName Resource group does not exist." -displaywithouttimestamp
+            }
+        }
+
+        #List the Service principal
+        log "Service Principals: " Cyan -displaywithouttimestamp
+        $servicePrincipalObj = Get-AzureRmADServicePrincipal -SearchString $deploymentPrefix -ErrorAction SilentlyContinue
+        if ($servicePrincipalObj -ne $null)
+        {
+            $servicePrincipalObj | ForEach-Object {
+                log "$($_.DisplayName)" -displaywithouttimestamp -nonewline
+            }
+        }
+        else{ 
+            log "Service Principal does not exist for '$deploymentPrefix' prefix" Yellow
+        }
+
+        #List the AD Application
+        $adApplicationObj = Get-AzureRmADApplication -DisplayNameStartWith "$deploymentPrefix Identity Web Application"
+        log "AD Applications: " Cyan -displaywithouttimestamp
+        if($adApplicationObj -ne $null){
+            log "$($adApplicationObj.DisplayName)" -displaywithouttimestamp -nonewline
+        }
+        Else{
+            log "AD Application does not exist for '$deploymentPrefix' prefix" Yellow -displaywithouttimestamp
+        }
+
+        #List the AD Users
+        log "AD Users: " Cyan -displaywithouttimestamp
+		$actors = @('NBME_SiteAdmin','NBME_ApplicationManager','NBME_Disable')
+        foreach ($actor in $actors) {
+            $upn = Get-AzureRmADUser -SearchString $actor
+            $fullUpn = $actor + '@' + $tenantDomain
+            if ($upn -ne $null )
+            {
+                log "$fullUpn" -displaywithouttimestamp -nonewline
+            }
+        }
+        if ($upn -eq $null)
+        {
+            log "No user exist" Yellow -displaywithouttimestamp
+        }
+        Write-Host ""
+        # Remove deployment resources
+        $message = "Do you want to DELETE above listed Deployment Resources ?"
+        $yes = New-Object System.Management.Automation.Host.ChoiceDescription "&Yes", `
+        "Deletes Deployment Resources"
+        $no = New-Object System.Management.Automation.Host.ChoiceDescription "&No", `
+        "Skips Deployment Resources Deletion"
+        $options = [System.Management.Automation.Host.ChoiceDescription[]]($yes, $no)
+        $result = $host.ui.PromptForChoice($null, $message, $options, 0)
+        switch ($result){
+            0 {
+                # Remove ResourceGroups
+                if ($rgCount -eq 1)
+                {
+                $resourceGroupList =@(
+                    (($deploymentPrefix, 'artifacts', 'rg') -join '-'),
+                    (($deploymentPrefix, 'workload',  'rg') -join '-')
+                )
+                $resourceGroupList | ForEach-Object { 
+                    $resourceGroupName = $_
+                    Get-AzureRmResourceGroup -Name $resourceGroupName | Out-Null
+                        log "Deleting Resource group $resourceGroupName" Yellow -displaywithouttimestamp
+                        Remove-AzureRmResourceGroup -Name $resourceGroupName -Force| Out-Null
+                        log "ResourceGroup $resourceGroupName was deleted successfully" Yellow -displaywithouttimestamp
+                    }
+                }
+
+                # Remove Service Principal
+                if ($servicePrincipals = Get-AzureRmADServicePrincipal -SearchString $deploymentPrefix) {
+                    $servicePrincipals | ForEach-Object {
+                        log "Removing Service Principal - $($_.DisplayName)."
+                        Remove-AzureRmADServicePrincipal -ObjectId $_.Id -Force
+                        log "Service Principal - $($_.DisplayName) was removed successfully" Yellow -displaywithouttimestamp
+                    }
+                }
+
+                # Remove Azure AD Users
+                
+                if ($upn -ne $null)
+                {
+                    log "Removing Azure AD User" Yellow -displaywithouttimestamp
+                    foreach ($actor in $actors) {
+                        try {
+                            $upn = $actor + '@' + $tenantDomain
+                            Get-AzureRmADUser -SearchString $upn
+                            Remove-AzureRmADUser -UPNOrObjectId $upn -Force -ErrorAction SilentlyContinue
+                            log "$upn delete successfully. " Yellow -displaywithouttimestamp
+                        }
+                        catch [System.Exception] {
+                            Throw $_
+                        }
+                    }
+                }
+				
+                #Remove AAD Application.
+                if($adApplicationObj)
+                {
+                    log "Removing Azure AD Application - $deploymentPrefix Identity Web Application" Yellow -displaywithouttimestamp
+                    Get-AzureRmADApplication -DisplayNameStartWith "$deploymentPrefix Identity Web Application" | Remove-AzureRmADApplication -Force
+                    log "Azure AD Application - $deploymentPrefix Azure HIPAA LOS Sample removed successfully" Yellow -displaywithouttimestamp
+                }
+                log "Resources cleared successfully." Magenta
+            }
+            1 {
+                log "Skipped - Resource Deletion." Cyan
+            }
+        }
+    }
+    catch {
+        Throw $_
+    }
 }
 else {
     ### Collect deployment output into Hashtable
@@ -245,8 +374,8 @@ catch {
 		Set-AzureADApplication -ObjectId $identityAdApplicationObjectId -ReplyUrls $replyUrl
 		 $requiredResourceAccess = New-Object -TypeName "Microsoft.Open.AzureAD.Model.RequiredResourceAccess"
                     $resourceAccess1 = New-Object -TypeName "Microsoft.Open.AzureAD.Model.ResourceAccess" -ArgumentList "311a71cc-e848-46a1-bdf8-97ff7156d8e6","Scope"
-                    $resourceAccess2 = New-Object -TypeName "Microsoft.Open.AzureAD.Model.ResourceAccess" -ArgumentList "5778995a-e1bf-45b8-affa-663a9f3f4d04","Role"
-                    $requiredResourceAccess.ResourceAccess = $resourceAccess1,$resourceAccess2
+                    #$resourceAccess2 = New-Object -TypeName "Microsoft.Open.AzureAD.Model.ResourceAccess" -ArgumentList "5778995a-e1bf-45b8-affa-663a9f3f4d04","Role"
+                    $requiredResourceAccess.ResourceAccess = $resourceAccess1
                     $requiredResourceAccess.ResourceAppId = "00000002-0000-0000-c000-000000000000" #Resource App ID for Azure ActiveDirectory
                     Set-AzureADApplication -ObjectId $identityAdApplicationObjectId -RequiredResourceAccess $requiredResourceAccess       
         
@@ -266,7 +395,7 @@ catch {
         
         if($globalAdminAdContext -ne $null){
            log "Connection to AzureAD was successful using $globalAdminUsername Account."  Green
-           $upn='Disable_User@'+$tenantDomain
+           $upn='NBME_Disable@'+$tenantDomain
            log "Trying to disable $upn using $globalAdminUsername Account."  Cyan
            Set-AzureADUser -ObjectID $upn -AccountEnabled $false
            #Set-MsolUser -UserPrincipalName $upn  -BlockCredential $true
