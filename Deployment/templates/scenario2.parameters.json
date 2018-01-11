@@ -1,0 +1,51 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentParameters.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "environmentReference": {
+      "value": {
+        "prefix": "iden",
+        "_artifactsLocation": "auto-update",
+        "_artifactsLocationSasToken": "auto-update",
+        "location": "auto-update",
+        "tags": {
+          "environment" : "Pilot"
+        },
+        "tenantId": "auto-update",
+        "adAppClientId": "auto-update",
+        "deploymentPassword": "auto-update",
+        "tenantDomain": "auto-update",
+        "targetAdApplicationId":"auto-update",
+        "uniquePrefix":"auto-update"
+      }
+    },
+    "frontEndTier1": {
+      "value": {
+        "webApp":
+          {
+            "name": "student",
+            "serviceName": "identity",
+            "hostingPlanServiceName": "identity-scenario2",
+            "tags": {
+              "tier": "identity",
+              "serviceName": "identity-client"
+            }
+          }
+      }
+    },
+    "frontEndTier2": {
+      "value": {
+        "webApp":
+          {
+            "name": "webfred",
+            "serviceName": "identity",
+            "hostingPlanServiceName": "identity-scenario2",
+            "tags": {
+              "tier": "identity",
+              "serviceName": "identity-target"
+            }
+          }
+      }
+    }
+  }
+}

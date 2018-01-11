@@ -172,7 +172,7 @@ else {
     #import script
     #. $scriptroot\scripts\pshscripts\Configure-AADUsers.ps1 -tenantId $tenantId -subscriptionId $subscriptionId -tenantDomain $tenantDomain -globalAdminUsername $globalAdminUsername -globalAdminPassword $securePassword -deploymentPassword $deploymentPassword
     ### Configure AAD User Accounts.
-   log "Creating AAD account for solution."
+<#   log "Creating AAD account for solution."
     try
     {
        log "Initiating separate powershell session for creating accounts."
@@ -184,15 +184,11 @@ else {
     {
         log $_
     }
-
+#>
     log "Wait for AAD Users to be provisioned."
     Start-Sleep 10
 
     try {
-    ### Create PSCredential Object for SiteAdmin
-    $siteAdminUserName = "Reed_SiteAdmin@" + $tenantDomain
-    $siteAdmincredential = New-Object System.Management.Automation.PSCredential ($siteAdminUserName, $secureDeploymentPassword)
-    
     ### Connect to AzureRM using SiteAdmin
     log "Connecting to AzureRM Subscription $subscriptionId using Account($globalAdminUsername)"
     $credential = New-Object System.Management.Automation.PSCredential ($globalAdminUsername, $globalAdminPassword)
@@ -213,7 +209,7 @@ catch {
 }
 
     try{
-        $targetAppServiceURL = (("http://",$deploymentPrefix,"-identity-target-webapp.azurewebsites.net") -join '' )
+        $targetAppServiceURL = (("http://",$deploymentPrefix,"-webfred-identity-webapp.azurewebsites.net") -join '' )
         $targetAppDisplayName = "$deploymentPrefix-Identity-Target-Application"
 
         if (!($targetAADApplication = Get-AzureRmADApplication -IdentifierUri $targetAppServiceURL )) {
@@ -249,7 +245,7 @@ catch {
     $adAppClientId=""
     # Create Azure Active Directory apps in default directory.
     try{
-        $AppServiceURL = (("http://",$deploymentPrefix,"-identity-client-webapp.azurewebsites.net") -join '' )
+        $AppServiceURL = (("http://",$deploymentPrefix,"student-identity-webapp.azurewebsites.net") -join '' )
         $displayName = "$deploymentPrefix-Identity-Client-Application"
 
         if (!($identityAADApplication = Get-AzureRmADApplication -IdentifierUri $AppServiceURL)) {
@@ -279,32 +275,6 @@ catch {
         $requiredResourceAccess.ResourceAccess = $resourceAccess1
         $requiredResourceAccess.ResourceAppId = "00000002-0000-0000-c000-000000000000" #Resource App ID for Azure ActiveDirectory
         Set-AzureADApplication -ObjectId $identityAdApplicationObjectId -RequiredResourceAccess $requiredResourceAccess
-    }
-    catch {
-        
-       log $_.Exception.Message
-        Break
-    }
-    
-    try {        
-        ### Connect to AzureAD using GlobalAdmin
-        log "Connecting to AzureAD using Account($globalAdminUsername)"
-        $credential = New-Object System.Management.Automation.PSCredential ($globalAdminUsername, $globalAdminPassword)
-        $globalAdminAdContext = Connect-AzureAD -Credential $credential -ErrorAction SilentlyContinue
-        #$globalAdminAdContext = Connect-MsolService -Credential $credential -ErrorAction SilentlyContinue
-        
-        if($globalAdminAdContext -ne $null){
-           log "Connection to AzureAD was successful using $globalAdminUsername Account."  Green
-           $upn='Disable_User@'+$tenantDomain
-           log "Trying to disable $upn using $globalAdminUsername Account."  Cyan
-           Set-AzureADUser -ObjectID $upn -AccountEnabled $false
-           log "Disabled $upn using $globalAdminUsername Account."  Green
-    
-        }
-        Else{
-           log "Failed connecting to AzureAD using $globalAdminUsername Account."  Red
-            break
-        }
     }
     catch {
         

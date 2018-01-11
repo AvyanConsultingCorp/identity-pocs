@@ -390,8 +390,9 @@ function Get-DeploymentData($hash) {
     $tmp = [System.IO.Path]::GetTempFileName()
     $deploymentName = "{0}-{1}-{2}" -f $deploymentPrefix, (Get-Date -Format MMddyyyy), $uniqueDeploymentHash
     $localIP = Invoke-RestMethod http://ipinfo.io/json | Select-Object -exp ip
-    $parametersData = Get-Content "$scriptroot\templates\azuredeploy.parameters.json" | ConvertFrom-Json
+    $parametersData = Get-Content "$scriptroot\templates\scenario$scenarioNumber.parameters.json" | ConvertFrom-Json
     $parametersData.parameters.environmentReference.value.prefix = $resourceGroupPrefix
+    $parametersData.parameters.environmentReference.value.uniquePrefix=$deploymentPrefix
     $parametersData.parameters.environmentReference.value._artifactsLocation = 'https://{0}.blob.core.windows.net/' -f $hash
     $parametersData.parameters.environmentReference.value.adAppClientId = $identityAdApplicationClientId
     $parametersData.parameters.environmentReference.value.deploymentPassword = $deploymentPassword

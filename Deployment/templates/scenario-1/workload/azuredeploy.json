@@ -24,7 +24,7 @@
       "properties": { 
          "mode": "Incremental",
         "templateLink": {
-          "uri": "[concat(parameters('environmentReference')._artifactsLocation,'templates/buildingblocks/web/azuredeploy.json')]",
+          "uri": "[concat(parameters('environmentReference')._artifactsLocation,'templates/buildingblocks/web/scenario.one.json')]",
           "contentVersion": "1.0.0.0"
         },
         "parameters": {
