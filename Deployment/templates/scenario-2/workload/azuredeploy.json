@@ -40,7 +40,7 @@
             "adAppClientId": {"value": "[parameters('environmentReference').adAppClientId]"},
             "adAppClientPassword":{"value":"[parameters('environmentReference').deploymentPassword]"},
             "tenantDomain":{"value":"[parameters('environmentReference').tenantDomain]"},
-            "packageURL":{"value":"artifacts/scenario/1/webapp/IdentityScenarioOne.Webapp.zip"}
+            "packageURL":{"value":"artifacts/scenario/2/webapp/Scenario2.ClientWebApp.zip"}
           }
         }
       },
@@ -66,7 +66,7 @@
             "adAppClientId": {"value": "[parameters('environmentReference').adAppClientId]"},
             "adAppClientPassword":{"value":"[parameters('environmentReference').deploymentPassword]"},
             "tenantDomain":{"value":"[parameters('environmentReference').tenantDomain]"},
-            "packageURL":{"value":"artifacts/scenario/2/webapp/IdentityScenarioTwo.Webapp.zip"}
+            "packageURL":{"value":"artifacts/scenario/2/webapp/Scenario2.ClientWebApp.zip"}
           }
         }
       }
