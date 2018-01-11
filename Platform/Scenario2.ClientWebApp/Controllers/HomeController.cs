@@ -65,7 +65,8 @@ namespace Scenario2.TargetWebApp.Controllers
                 Response.Cookies[cookie].Expires = DateTime.Now.AddDays(-1);
             }
             string webAppURL = ConfigurationManager.AppSettings["webAppURL"];
-            string redirectURI = "https://login.microsoftonline.com/46d804b6-210b-4a4a-9304-83b93e71784d/oauth2/logout?post_logout_redirect_uri=" + webAppURL;
+            string tenantId = ConfigurationManager.AppSettings["tenantId"];
+            string redirectURI = "https://login.microsoftonline.com/" + tenantId + "/oauth2/logout?post_logout_redirect_uri=" + webAppURL;
             return Redirect(redirectURI);
         }
 

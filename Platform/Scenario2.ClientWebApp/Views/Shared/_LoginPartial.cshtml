@@ -2,15 +2,14 @@
 @if (Request.IsAuthenticated)
 {
     <text>
-<ul class="nav navbar-nav navbar-right">
-    <li class="navbar-text">
-        Hello, @User.Identity.Name
-    </li>
-    <li>
-    <a href="https://login.microsoftonline.com/46d804b6-210b-4a4a-9304-83b93e71784d/oauth2/logout?post_logout_redirect_uri=http://identityscenarioonewebnew.azurewebsites.net/">Sign out</a>
-        @Html.ActionLink("Sign Out","signout","Home");
-    </li>
-</ul>
+        <ul class="nav navbar-nav navbar-right">
+            <li class="navbar-text" style="color:midnightblue">
+                Hello, @User.Identity.Name
+            </li>
+            <li>
+                @Html.ActionLink("Sign Out", "signout", "Home", null, new { style = "color:midnightblue" });
+            </li>
+        </ul>
     </text>
 }
 else
