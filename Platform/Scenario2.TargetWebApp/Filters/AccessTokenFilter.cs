@@ -21,7 +21,7 @@ namespace Scenario2.TargetWebApp.Filters
             {
                 filterContext.Result = new ViewResult
                 {
-                    ViewName = "Error"
+                    ViewName = "401"
                 };
             }
            
