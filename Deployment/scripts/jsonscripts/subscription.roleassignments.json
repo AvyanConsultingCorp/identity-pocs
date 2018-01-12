@@ -1,0 +1,49 @@
+﻿{
+  "Subscription": {
+    "Id": "fb828b18-79dd-400c-919a-a393d88835e5"
+  },
+  "UserConfiguration": {
+    "Alice": [
+      {
+        "Subscription": [
+          {
+            "role": [
+              {
+                "name": "Owner"
+              }
+            ]
+          }
+        ]
+      }
+    ],
+    "Reed_SiteAdmin": [
+      {
+        "ResourceGroup": [
+          {
+            "name": "hash-workload-env-rg",
+            "role": [
+              {
+                "name": "Contributor"
+              }
+            ]
+          }
+        ]
+      }
+    ],
+    "Debra_DataScientist": [
+      {
+        "ResourceGroup": [
+          {
+            "name": "hash-workload-env-rg",
+            "role": [
+              {
+                "name": "Contributor"
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  "CustomRoles":[]
+}

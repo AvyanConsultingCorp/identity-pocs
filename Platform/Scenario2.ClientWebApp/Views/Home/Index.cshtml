@@ -1,0 +1,29 @@
+﻿@{
+    ViewBag.Title = "Home Page";
+}
+
+<script>
+    function getUserDetails() {
+        window.location.href = document.anchors["detailsUrl"].href;
+    }
+</script>
+
+@if (!Request.IsAuthenticated)
+{
+    <div class="jumbotron">
+        <h1 style="text-align:center">Student Portal</h1>
+    </div>
+}
+else
+{
+    @*<h3>Target Application Access Token:</h3>
+    <table class="table table-striped table-bordered table-hover">
+        <tr><td>Auth token</td><td style="word-break: break-all;">@ViewBag.AuthToken</td></tr>
+    </table>*@
+    <br />
+
+    <div>
+        <a href="@ViewBag.detailUrl" class="btn btn-primary" role="button">Go to Exam Portal</a>
+    </div>
+}
+
