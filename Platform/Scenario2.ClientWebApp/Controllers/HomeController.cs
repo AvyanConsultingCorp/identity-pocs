@@ -16,11 +16,11 @@ namespace Scenario2.TargetWebApp.Controllers
 {
     public class HomeController : Controller
     {
-        string adAppClientId = ConfigurationManager.AppSettings["ClientId"];
+        string adAppClientId = ConfigurationManager.AppSettings["ADAppClientId"];
         string tenant = ConfigurationManager.AppSettings["TenantDomain"];
-        string adAppClientPassword = ConfigurationManager.AppSettings["ClientSecret"];
-        string targetURL = ConfigurationManager.AppSettings["TargetEndpoint"];
-        string targetAppId = ConfigurationManager.AppSettings["TargetAppId"];
+        string adAppClientPassword = ConfigurationManager.AppSettings["ADAppSecret"];
+        string targetURL = ConfigurationManager.AppSettings["TargetWebAppURL"];
+        string targetAppId = ConfigurationManager.AppSettings["TargetADAppClientId"];
 
         public HomeController()
         {
@@ -64,7 +64,7 @@ namespace Scenario2.TargetWebApp.Controllers
             {
                 Response.Cookies[cookie].Expires = DateTime.Now.AddDays(-1);
             }
-            string webAppURL = ConfigurationManager.AppSettings["webAppURL"];
+            string webAppURL = ConfigurationManager.AppSettings["WebAppURL"];
             string tenantId = ConfigurationManager.AppSettings["tenantId"];
             string redirectURI = "https://login.microsoftonline.com/" + tenantId + "/oauth2/logout?post_logout_redirect_uri=" + webAppURL;
             return Redirect(redirectURI);

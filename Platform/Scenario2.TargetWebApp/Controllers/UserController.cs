@@ -11,7 +11,7 @@ namespace Scenario2.TargetWebApp.Controllers
     {
         const string authIssuer = "https://demo-client-webapp.azurewebsites.net"; // Client Domain
 
-        private string authAudience = ConfigurationManager.AppSettings["ClientId"]; // Target Domain
+        private string authAudience = ConfigurationManager.AppSettings["ADAppClientId"]; // Target Domain
 
         // GET: User
         public ActionResult Index()
