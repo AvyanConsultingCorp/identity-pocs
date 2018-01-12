@@ -20,7 +20,7 @@
     "resources": [
       { 
         "apiVersion": "2017-05-10", 
-        "name": "deploy-webapp-II", 
+        "name": "deploy-webfred-webapp", 
         "type": "Microsoft.Resources/deployments",
         "properties": { 
            "mode": "Incremental",
@@ -42,8 +42,11 @@
       },
       { 
         "apiVersion": "2017-05-10", 
-        "name": "deploy-webapp-I", 
+        "name": "deploy-student-webapp", 
         "type": "Microsoft.Resources/deployments",
+        "dependsOn": [
+          "deploy-webfred-webapp"
+        ],
         "properties": { 
            "mode": "Incremental",
           "templateLink": {
