@@ -100,5 +100,5 @@ foreach ($user in $actors) {
   $jsonoutput = $outputFile | ConvertTo-Json
   $scriptpath = split-path $scriptRoot
   $outputpath = split-path $scriptpath 
-  $jsonoutput | Out-File $outputpath\output\usersScenarioTwo.txt
+  $jsonoutput | Out-File $outputpath\output\usersScenarioOne.txt
   
