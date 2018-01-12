@@ -422,7 +422,7 @@ catch {
     }
 
 	  ### Invoke ARM deployment.
-        log "Initiating Identity POC Deployment." Cyan
+        log "Initiating Identity POC One Deployment." Cyan
         
         log "Invoke Background Job Deployment for Workload"
         Invoke-ARMDeployment -subscriptionId $subscriptionId -resourceGroupPrefix $deploymentPrefix -location $location -identityAdApplicationClientId $adAppClientId -steps 1 -scenarioNumber 1 -prerequisiteRefresh
