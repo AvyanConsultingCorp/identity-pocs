@@ -395,10 +395,15 @@ function Get-DeploymentData($hash) {
     $parametersData.parameters.environmentReference.value._artifactsLocation = 'https://{0}.blob.core.windows.net/' -f $hash
     $parametersData.parameters.environmentReference.value.adAppClientId = $identityAdApplicationClientId
     $parametersData.parameters.environmentReference.value.deploymentPassword = $deploymentPassword
-	$parametersData.parameters.environmentReference.value.targetAdApplicationId = $targetAdApplicationId
     $parametersData.parameters.environmentReference.value.tenantId = $tenantId
     $parametersData.parameters.environmentReference.value.tenantDomain = $tenantDomain
     $parametersData.parameters.environmentReference.value.location = $location
+
+	if($scenarioNumber -eq 2)
+	{
+	$parametersData.parameters.environmentReference.value.targetAdApplicationId = $targetAdApplicationId
+	}
+
     ( $parametersData | ConvertTo-Json -Depth 10 ) -replace "\\u0027", "'" | Out-File $tmp
     $deploymentName, $tmp
 }
