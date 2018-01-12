@@ -346,7 +346,7 @@ catch {
     # Create Azure Active Directory apps in default directory.
     try{
         $AppServiceURL = (("http://",$deploymentPrefix,"-identity-webapp.azurewebsites.net") -join '' )
-        $displayName = "$deploymentPrefix-Identity-Client-Application"
+        $displayName = "$deploymentPrefix Identity Web Application"
 
         if (!($identityAADApplication = Get-AzureRmADApplication -IdentifierUri $AppServiceURL)) {
         log "Creating AAD Application deployment"
@@ -364,20 +364,20 @@ catch {
 		else{
             $adAppClientId = $identityAADApplication.ApplicationId.Guid.ToString()
             $identityAdApplicationObjectId = $identityAADApplication.ObjectId.Guid.ToString()
-            #$identityAdServicePrincipalObjectId = (Get-AzureRmADServicePrincipal | ?  DispLayName -eq "$deploymentPrefix Identity Application").Id.Guid
+            <#$identityAdServicePrincipalObjectId = (Get-AzureRmADServicePrincipal | ?  DispLayName -eq "$deploymentPrefix Identity Application").Id.Guid#>
             
             New-AzureRmADAppCredential -ObjectId $identityAADApplication.ObjectId.Guid -Password $secureDeploymentPassword
         }
         #Connect to Azure AD.
         Connect-AzureAD -TenantId $tenantId -Credential $credential
-        $replyUrl =  (('https://', $deploymentPrefix ,'-identity-client-webapp' ,'.azurewebsites.net/.auth/login/aad/callback') -join '')
+        $replyUrl =  (('https://', $deploymentPrefix ,'-identity-webapp' ,'.azurewebsites.net/.auth/login/aad/callback') -join '')
 		Set-AzureADApplication -ObjectId $identityAdApplicationObjectId -ReplyUrls $replyUrl
-		$requiredResourceAccess = New-Object -TypeName "Microsoft.Open.AzureAD.Model.RequiredResourceAccess"
-        $resourceAccess1 = New-Object -TypeName "Microsoft.Open.AzureAD.Model.ResourceAccess" -ArgumentList "311a71cc-e848-46a1-bdf8-97ff7156d8e6","Scope"
-        #$resourceAccess2 = New-Object -TypeName "Microsoft.Open.AzureAD.Model.ResourceAccess" -ArgumentList "5778995a-e1bf-45b8-affa-663a9f3f4d04","Role"
-        $requiredResourceAccess.ResourceAccess = $resourceAccess1
-        $requiredResourceAccess.ResourceAppId = "00000002-0000-0000-c000-000000000000" #Resource App ID for Azure ActiveDirectory
-        Set-AzureADApplication -ObjectId $identityAdApplicationObjectId -RequiredResourceAccess $requiredResourceAccess       
+		 $requiredResourceAccess = New-Object -TypeName "Microsoft.Open.AzureAD.Model.RequiredResourceAccess"
+                    $resourceAccess1 = New-Object -TypeName "Microsoft.Open.AzureAD.Model.ResourceAccess" -ArgumentList "311a71cc-e848-46a1-bdf8-97ff7156d8e6","Scope"
+                    #$resourceAccess2 = New-Object -TypeName "Microsoft.Open.AzureAD.Model.ResourceAccess" -ArgumentList "5778995a-e1bf-45b8-affa-663a9f3f4d04","Role"
+                    $requiredResourceAccess.ResourceAccess = $resourceAccess1
+                    $requiredResourceAccess.ResourceAppId = "00000002-0000-0000-c000-000000000000" #Resource App ID for Azure ActiveDirectory
+                    Set-AzureADApplication -ObjectId $identityAdApplicationObjectId -RequiredResourceAccess $requiredResourceAccess       
         
     }
     catch {
@@ -385,7 +385,7 @@ catch {
        log $_.Exception.Message
         Break
     }
-    #>
+    
     try {        
         ### Connect to AzureAD using GlobalAdmin
         log "Connecting to AzureAD using Account($globalAdminUsername)"
@@ -422,7 +422,7 @@ catch {
     }
 
 	  ### Invoke ARM deployment.
-        log "Initiating Identity POC Deployment." Cyan
+        log "Initiating Identity POC One Deployment." Cyan
         
         log "Invoke Background Job Deployment for Workload"
         Invoke-ARMDeployment -subscriptionId $subscriptionId -resourceGroupPrefix $deploymentPrefix -location $location -identityAdApplicationClientId $adAppClientId -steps 1 -scenarioNumber 1 -prerequisiteRefresh
