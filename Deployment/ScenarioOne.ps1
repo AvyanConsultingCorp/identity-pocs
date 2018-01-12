@@ -306,7 +306,7 @@ else {
     {
        log "Initiating separate powershell session for creating accounts."
        #Configure-AADUsers.ps1 
-       .\scripts\pshscripts\Configure-AADUsers.ps1 -tenantId $tenantId -subscriptionId $subscriptionId -tenantDomain $tenantDomain -globalAdminUsername $globalAdminUsername -globalAdminPassword $securePassword -deploymentPassword $deploymentPassword
+       .\scripts\pshscripts\Configure-AADUsersScenarioOne.ps1 -tenantId $tenantId -subscriptionId $subscriptionId -tenantDomain $tenantDomain -globalAdminUsername $globalAdminUsername -globalAdminPassword $securePassword -deploymentPassword $deploymentPassword
 
     }
     catch [System.Exception]
