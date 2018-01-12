@@ -62,7 +62,7 @@
             "adAppId": {"value": "[parameters('environmentReference').adAppClientId]"},
             "adAppSecret":{"value":"[parameters('environmentReference').deploymentPassword]"},
             "tenantDomain":{"value":"[parameters('environmentReference').tenantDomain]"},
-            "targetWebAppUrl":{"value":"[toLower(concat('https://',parameters('environmentReference').prefix,'-',variables('targetWebAppName'),'-',variables('serviceName'),'.azurewebsites.net'))]"},
+            "targetWebAppUrl":{"value":"[toLower(concat('https://',parameters('environmentReference').prefix,'-',variables('targetWebAppName'),'-',variables('serviceName'),'-webapp.azurewebsites.net'))]"},
             "packageURL":{"value":"[concat(parameters('environmentReference')._artifactsLocation,'artifacts/scenario/2/webapp/Scenario2.ClientWebApp.zip')]"}
             
           }

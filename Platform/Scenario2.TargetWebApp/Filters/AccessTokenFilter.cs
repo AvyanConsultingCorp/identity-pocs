@@ -17,7 +17,7 @@ namespace Scenario2.TargetWebApp.Filters
         {
             var token = filterContext.RequestContext.HttpContext.Request.QueryString.Get("authToken");
             var tokenData = new TokenData();
-            if (!JwtTokenValidator.Validate(ConfigurationManager.AppSettings["ClientId"], token, ref tokenData))
+            if (!JwtTokenValidator.Validate(ConfigurationManager.AppSettings["ADAppClientId"], token, ref tokenData))
             {
                 filterContext.Result = new ViewResult
                 {
