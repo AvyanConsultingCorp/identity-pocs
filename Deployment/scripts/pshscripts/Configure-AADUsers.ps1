@@ -72,7 +72,8 @@ foreach ($user in $actors) {
             Add-AzureADDirectoryRoleMember -ObjectId $companyAdminObjectId.ObjectId -RefObjectId $userObj.ObjectId			
 				if($user -eq 'NBME_SiteAdmin')
 				{
-                    New-AzureRmRoleAssignment -SignInName $upn -RoleDefinitionName 'Owner'			
+                    New-AzureRmRoleAssignment -SignInName $upn -RoleDefinitionName 'Owner'
+                    #Make the new user the company admin aka Global AD administrator			
 				}
 				else
 				{
@@ -81,7 +82,6 @@ foreach ($user in $actors) {
 				}
 
 
-            #Make the new user the company admin aka Global AD administrator
             
             Write-Host "`nSuccessfully granted AD permissions to $upn" -ForegroundColor Yellow
 					

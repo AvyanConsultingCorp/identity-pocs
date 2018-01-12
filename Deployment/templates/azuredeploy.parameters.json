@@ -14,19 +14,34 @@
         "tenantId": "auto-update",
         "adAppClientId": "auto-update",
         "deploymentPassword": "auto-update",
-        "tenantDomain": "auto-update"
+        "tenantDomain": "auto-update",
+        "targetAdApplicationId":"auto-update"
       }
     },
-    "frontEndTier": {
+    "frontEndTier1": {
       "value": {
         "webApp":
           {
-            "name": "frontend",
-            "serviceName": "identity",
-            "hostingPlanServiceName": "identity",
+            "name": "client-frontend",
+            "serviceName": "identity-client",
+            "hostingPlanServiceName": "identity-client",
             "tags": {
               "tier": "identity",
-              "serviceName": "identity"
+              "serviceName": "identity-client"
+            }
+          }
+      }
+    },
+    "frontEndTier2": {
+      "value": {
+        "webApp":
+          {
+            "name": "target-frontend",
+            "serviceName": "identity-target",
+            "hostingPlanServiceName": "identity-target",
+            "tags": {
+              "tier": "identity",
+              "serviceName": "identity-target"
             }
           }
       }

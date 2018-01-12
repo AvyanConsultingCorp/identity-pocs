@@ -289,10 +289,19 @@ function Invoke-ARMDeployment {
         ValueFromPipelineByPropertyName = $true,
         Position = 4)]
         [int[]]$steps,
+        [Parameter(Mandatory = $true,
+        ValueFromPipelineByPropertyName = $true,
+        Position = 5)]
+        [int]$scenarioNumber,
+        [Parameter(Mandatory=$false,
+        ValueFromPipelineByPropertyName=$true,
+        Position=6)]
+        [string]$targetAdApplicationId,
         [Parameter(Mandatory = $false,
             ValueFromPipelineByPropertyName = $true,
-            Position = 5)]
+            Position = 7)]
         [switch]$prerequisiteRefresh
+        
     )
     $null = Save-AzureRmContext -Path $ProfilePath -Force
     try {
@@ -332,7 +341,7 @@ function Invoke-ARMDeployment {
             $Script:newDeploymentName = (($deploymentData[0], ($deployments.$step).name) -join '-').ToString().Replace('\','-')
             $Script:newDeploymentResourceGroupName = (($resourceGroupPrefix,($deployments.$step).rg,'rg' ) -join '-')
             Start-job -Name ("$step-create") -ScriptBlock $importSession -Debug `
-                -ArgumentList (($resourceGroupPrefix,($deployments.$step).rg,'rg' ) -join '-'), "$scriptroot\templates\scenarios\$(($deployments.$step).name)\azuredeploy.json", $deploymentData[1], (($deploymentData[0], ($deployments.$step).name) -join '-').ToString().Replace('\','-'), $scriptRoot, $subscriptionId
+                -ArgumentList (($resourceGroupPrefix,($deployments.$step).rg,'rg' ) -join '-'), "$scriptroot\templates\scenario-$scenarioNumber\$(($deployments.$step).name)\azuredeploy.json", $deploymentData[1], (($deploymentData[0], ($deployments.$step).name) -join '-').ToString().Replace('\','-'), $scriptRoot, $subscriptionId
         }
     }
     catch {
@@ -381,7 +390,7 @@ function Get-DeploymentData($hash) {
     $tmp = [System.IO.Path]::GetTempFileName()
     $deploymentName = "{0}-{1}-{2}" -f $deploymentPrefix, (Get-Date -Format MMddyyyy), $uniqueDeploymentHash
     $localIP = Invoke-RestMethod http://ipinfo.io/json | Select-Object -exp ip
-    $parametersData = Get-Content "$scriptroot\templates\azuredeploy.parameters.json" | ConvertFrom-Json
+    $parametersData = Get-Content "$scriptroot\templates\scenario$scenarioNumber.parameters.json" | ConvertFrom-Json
     $parametersData.parameters.environmentReference.value.prefix = $resourceGroupPrefix
     $parametersData.parameters.environmentReference.value._artifactsLocation = 'https://{0}.blob.core.windows.net/' -f $hash
     $parametersData.parameters.environmentReference.value.adAppClientId = $identityAdApplicationClientId

@@ -15,6 +15,9 @@
     "webApp": {
       "type": "secureObject"
     },
+    "servicePlan":{
+      "type": "string"
+    },
     "location": {
       "type": "string"
     },
@@ -29,17 +32,21 @@
     },
 	"tenantDomain":{
 	  "type":"string"
-	},
+  },
+  "packageURL":{
+    "type": "string"
+  },
     "tags": {
       "type": "object"
     }
   },
   "variables": {
+    
   },
   "resources": [
     {
       "apiVersion": "2017-05-10",
-      "name": "webapp-appsvcplan",
+      "name": "[toLower(concat(parameters('uniquePrefix'),'-',parameters('webApp').hostingPlanServiceName,'-appsvcplan'))]",
       "type": "Microsoft.Resources/deployments",
       "properties": {
         "mode": "Incremental",
@@ -61,7 +68,7 @@
       "name": "[concat(parameters('webApp').name)]",
       "type": "Microsoft.Resources/deployments",
       "dependsOn": [
-        "webapp-appsvcplan"
+        "[toLower(concat(parameters('uniquePrefix'),'-',parameters('webApp').hostingPlanServiceName,'-appsvcplan'))]"
       ],
       "properties": {
         "mode": "Incremental",
@@ -79,7 +86,7 @@
             "value": "[parameters('location')]"
           },
           "DeployPackageURI": {
-            "value": "[concat(parameters('_artifactsLocation'),'artifacts/scenario/1/webapp/ScenarioOne.WebApp.zip')]"
+            "value": "[concat(parameters('_artifactsLocation'),parameters('packageURL'))]"
           },
 		  "tenantId": {
             "value": "[parameters('tenantId')]"
@@ -94,7 +101,7 @@
             "value": "[parameters('tenantDomain')]"
           },
 		  "webAppURL":{
-			"value": "[concat('https://', parameters('uniquePrefix'), '-identity-webapp.azurewebsites.net/')]"
+			"value": "[concat('https://', parameters('uniquePrefix'),'-',parameters('webApp').serviceName,'-webapp.azurewebsites.net/')]"
 		  },
 		  "tags": {
             "value": "[union(parameters('tags'), parameters('webApp').tags)]"
@@ -104,11 +111,11 @@
     },
 	{
       "apiVersion": "2017-05-10",
-      "name": "Webapp-Configuration",
+      "name": "[concat(parameters('webApp').serviceName,'-Configuration')]",
       "type": "Microsoft.Resources/deployments",
       "dependsOn": [
         "[concat(parameters('webApp').name)]",
-		"webapp-appsvcplan"
+		"[toLower(concat(parameters('uniquePrefix'),'-',parameters('webApp').hostingPlanServiceName,'-appsvcplan'))]"
       ],
       "properties": {
         "mode": "Incremental",
@@ -132,7 +139,7 @@
             "value": "[parameters('adAppClientPassword')]"
           },
 		  "webAppURL":{
-			"value": "[concat('https://', parameters('uniquePrefix'), '-identity-webapp.azurewebsites.net/.auth/login/aad/callback')]"
+			"value": "[concat('https://', parameters('uniquePrefix'),'-',parameters('webApp').serviceName,'-webapp.azurewebsites.net/.auth/login/aad/callback')]"
 		  }
         }
       }

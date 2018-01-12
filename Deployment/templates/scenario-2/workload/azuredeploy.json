@@ -1,0 +1,73 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+      "environmentReference": {
+        "type": "secureObject"
+      },
+      "frontEndTier1": {
+        "type": "secureObject"
+      },
+      "frontEndTier2": {
+        "type": "secureObject"
+      }
+      },
+    
+    "variables": {
+       "targetWebAppName" :"[parameters('frontEndTier2').webApp.name]",
+       "serviceName":"[parameters('frontEndTier2').webApp.serviceName]"
+  },
+    "resources": [
+      { 
+        "apiVersion": "2017-05-10", 
+        "name": "deploy-webapp-II", 
+        "type": "Microsoft.Resources/deployments",
+        "properties": { 
+           "mode": "Incremental",
+          "templateLink": {
+            "uri": "[concat(parameters('environmentReference')._artifactsLocation,'templates/buildingblocks/web/scenario.two.target.json')]",
+            "contentVersion": "1.0.0.0"
+          },
+          "parameters": {
+            "_artifactsLocation": { "value": "[parameters('environmentReference')._artifactsLocation]" },
+            "_artifactsSasToken": { "value": "[parameters('environmentReference')._artifactsLocationSasToken]" },
+            "uniquePrefix": { "value": "[parameters('environmentReference').prefix]" },
+            "webApp": { "value": "[parameters('frontEndTier2').webApp]" },
+            "location": { "value": "[parameters('environmentReference').location]" },
+            "tags": { "value": "[parameters('environmentReference').tags]" },
+            "adAppId":{"value": "[parameters('environmentReference').targetAdApplicationId]"},     
+            "packageURL":{"value":"[concat(parameters('environmentReference')._artifactsLocation,'artifacts/scenario/2/webapp/Scenario2.TargetWebApp.zip')]"}
+          }
+        }
+      },
+      { 
+        "apiVersion": "2017-05-10", 
+        "name": "deploy-webapp-I", 
+        "type": "Microsoft.Resources/deployments",
+        "properties": { 
+           "mode": "Incremental",
+          "templateLink": {
+            "uri": "[concat(parameters('environmentReference')._artifactsLocation,'templates/buildingblocks/web/scenario.two.client.json')]",
+            "contentVersion": "1.0.0.0"
+          },
+          "parameters": {
+            "_artifactsLocation": { "value": "[parameters('environmentReference')._artifactsLocation]" },
+            "_artifactsSasToken": { "value": "[parameters('environmentReference')._artifactsLocationSasToken]" },
+            "uniquePrefix": { "value": "[parameters('environmentReference').prefix]" },
+            "webApp": { "value": "[parameters('frontEndTier1').webApp]" },
+            "location": { "value": "[parameters('environmentReference').location]" },
+            "tags": { "value": "[parameters('environmentReference').tags]" },
+            "tenantId":{"value":"[parameters('environmentReference').tenantId]"},
+            "targetAdAppId":{"value": "[parameters('environmentReference').targetAdApplicationId]"},
+            "adAppId": {"value": "[parameters('environmentReference').adAppClientId]"},
+            "adAppSecret":{"value":"[parameters('environmentReference').deploymentPassword]"},
+            "tenantDomain":{"value":"[parameters('environmentReference').tenantDomain]"},
+            "targetWebAppUrl":{"value":"[toLower(concat('https://',parameters('environmentReference').prefix,'-',variables('targetWebAppName'),'-',variables('serviceName'),'.azurewebsites.net'))]"},
+            "packageURL":{"value":"[concat(parameters('environmentReference')._artifactsLocation,'artifacts/scenario/2/webapp/Scenario2.ClientWebApp.zip')]"}
+            
+          }
+        }
+      }
+    ],
+    "outputs": {}
+  }
