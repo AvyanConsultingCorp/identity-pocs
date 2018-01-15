@@ -103,9 +103,8 @@ foreach ($user in $actors) {
 	{
       try
       {
-       $SecurePassword = ConvertTo-SecureString $deploymentPassword -AsPlainText -Force
-       Set-AzureADUserPassword -ObjectId $upn -Password $SecurePassword -ForceChangePasswordNextLogin $false -EnforceChangePasswordPolicy $false
-       Write-Host "`nSuccessfully updated Password for $upn to Deployment password" -ForegroundColor Yellow
+		Write-Host -ForegroundColor Green "`n$upn already exists in AAD. Resetting password.."
+		Get-AzureADUser -SearchString $upn | Set-AzureADUser -PasswordProfile $passwordProfile
        if($upn -eq 'NBME_Disable@'+$tenantDomain)
        {
          Write-Host "Trying to disable $upn using $globalAdminUsername Account."  -ForegroundColor Yellow
