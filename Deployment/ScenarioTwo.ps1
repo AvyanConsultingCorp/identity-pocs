@@ -203,7 +203,7 @@ if ($clearDeployment) {
 
         #List the AD Users
         log "AD Users: " Cyan -displaywithouttimestamp
-		$actors = @('NBME_Admin','NBME_Manager')
+		$actors = @('NBME_SiteAdmin','NBME_ApplicationManager','NBME_Disable')
         foreach ($actor in $actors) {
             $upn = Get-AzureRmADUser -SearchString $actor
             $fullUpn = $actor + '@' + $tenantDomain
@@ -275,7 +275,7 @@ if ($clearDeployment) {
 				    foreach($adactor in $adactors){
                     log "Removing Azure AD Application - $adactor" Yellow -displaywithouttimestamp
                     Get-AzureRmADApplication -DisplayNameStartWith $adactor | Remove-AzureRmADApplication -Force
-                    log "Azure AD Application - $actor removed successfully" Yellow -displaywithouttimestamp
+                    log "Azure AD Application - $adactor removed successfully" Yellow -displaywithouttimestamp
                  }
 				}
                 log "Resources cleared successfully." Magenta
@@ -314,7 +314,7 @@ else {
     {
        log "Initiating separate powershell session for creating accounts."
        #Configure-AADUsers.ps1 
-       .\scripts\pshscripts\Configure-AADUsersScenarioTwo.ps1 -tenantId $tenantId -subscriptionId $subscriptionId -tenantDomain $tenantDomain -globalAdminUsername $globalAdminUsername -globalAdminPassword $securePassword -deploymentPassword $deploymentPassword
+       .\scripts\pshscripts\Configure-AADUsers.ps1 -tenantId $tenantId -subscriptionId $subscriptionId -tenantDomain $tenantDomain -globalAdminUsername $globalAdminUsername -globalAdminPassword $securePassword -deploymentPassword $deploymentPassword
 
     }
     catch [System.Exception]

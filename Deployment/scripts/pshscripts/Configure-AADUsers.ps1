@@ -63,8 +63,16 @@ foreach ($user in $actors) {
     {
         Write-Host -ForegroundColor Yellow  "`n$upn does not exist in the directory. Creating account for $upn."
         try {
+         if($user -eq 'NBME_Disable')
+         {
             $userObj = New-AzureADUser -DisplayName $user -PasswordProfile $passwordProfile `
-            -UserPrincipalName $upn -AccountEnabled $true -MailNickName $user
+            -UserPrincipalName $upn -MailNickName $user -AccountEnabled $false
+            }
+            else
+            {
+               $userObj = New-AzureADUser -DisplayName $user -PasswordProfile $passwordProfile `
+               -UserPrincipalName $upn -AccountEnabled $true -MailNickName $user            
+             }
             Write-Host -ForegroundColor Yellow "`n$upn created successfully."
             if ($upn -eq ($user+'@'+$tenantDomain)) {
             #Get the Compay AD Admin ObjectID
@@ -91,6 +99,25 @@ foreach ($user in $actors) {
             throw $_
         }
     }
+	else
+	{
+      try
+      {
+		Write-Host -ForegroundColor Green "`n$upn already exists in AAD. Resetting password.."
+		Get-AzureADUser -SearchString $upn | Set-AzureADUser -PasswordProfile $passwordProfile
+       if($upn -eq 'NBME_Disable@'+$tenantDomain)
+       {
+         Write-Host "Trying to disable $upn using $globalAdminUsername Account."  -ForegroundColor Yellow
+         Set-AzureADUser -ObjectID $upn -AccountEnabled $false
+         Write-Host "Disabled $upn using $globalAdminUsername Account." -ForegroundColor Yellow
+       }
+       }
+       catch
+       {
+         throw $_
+       }
+		
+	}
 }
 
   $scriptRoot = Split-Path $MyInvocation.MyCommand.Path
@@ -100,5 +127,5 @@ foreach ($user in $actors) {
   $jsonoutput = $outputFile | ConvertTo-Json
   $scriptpath = split-path $scriptRoot
   $outputpath = split-path $scriptpath 
-  $jsonoutput | Out-File $outputpath\output\usersScenarioOne.txt
+  $jsonoutput | Out-File $outputpath\output\users.txt
   

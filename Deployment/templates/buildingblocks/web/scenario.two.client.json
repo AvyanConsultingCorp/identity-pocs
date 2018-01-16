@@ -120,7 +120,7 @@
             "location": "[parameters('location')]",
             "apiVersion": "2015-08-01",
             "dependsOn": [
-              "[concat('Microsoft.Web/sites/', variables('WebAppName'))]"
+              "[variables('WebAppName')]"
             ],
             "tags": {
               "displayName": "WebAppMSDeploy"
@@ -135,10 +135,11 @@
       "apiVersion": "2017-05-10",
       "name": "Webapp-Configuration",
       "type": "Microsoft.Resources/deployments",
-      "dependsOn": [
-        "[variables('WebAppName')]",
-		      "[concat(parameters('webApp').name,'-webapp-appsvcplan')]"
-      ],
+        "dependsOn": [
+          "[variables('WebAppName')]",
+          "[concat(parameters('webApp').name,'-webapp-appsvcplan')]",
+          "MSDeploy"
+        ],
       "properties": {
         "mode": "Incremental",
         "templateLink": {
