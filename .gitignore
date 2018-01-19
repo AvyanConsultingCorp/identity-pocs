@@ -24,6 +24,7 @@ bld/
 [Oo]bj/
 [Ll]og/
 [Dd]eployment/output/
+[Dd]eployment/auth.json
 
 # Visual Studio 2015 cache/options directory
 .vs/
